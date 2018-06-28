@@ -1,0 +1,59 @@
+<wsdl:definitions name="ProductsAndCategoriesBS"
+  targetNamespace="http://resseler.rubyit.com.br/"
+  xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:tns="http://resseler.rubyit.com.br/"
+  xmlns:com="http://resseler.rubyit.com.br/common"
+  xmlns:prd="http://resseler.rubyit.com.br/products"
+  xmlns:cat="http://resseler.rubyit.com.br/categories"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import
+        namespace="http://resseler.rubyit.com.br/products"
+        schemaLocation="../xsd/products.xsd">
+      </xsd:import>
+      <xsd:import
+        namespace="http://resseler.rubyit.com.br/categories"
+        schemaLocation="../xsd/categories.xsd">
+      </xsd:import>
+      <xsd:import
+        namespace="http://resseler.rubyit.com.br/common"
+        schemaLocation="../xsd/common.xsd">
+      </xsd:import>
+    </xsd:schema>
+  </wsdl:types>  
+  <wsdl:message name="loadCategories">
+    <wsdl:part element="cat:loadCategories" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="loadCategoriesResponse">
+    <wsdl:part element="cat:loadCategoriesResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ProductsAndCategoriesBS">
+    <wsdl:operation name="loadCategories">
+      <wsdl:input message="tns:loadCategories" name="loadCategories"> </wsdl:input>
+      <wsdl:output message="tns:loadCategoriesResponse" name="loadCategoriesResponse"
+        > </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ProductsAndCategoriesBSServiceSoapBinding" type="tns:ProductsAndCategoriesBS">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="loadCategories">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="loadCategories">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="loadCategoriesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ProductsAndCategoriesBSService">
+    <wsdl:port binding="tns:ProductsAndCategoriesBSServiceSoapBinding"
+      name="ProductsAndCategoriesBSPort">
+      <soap:address
+        location="http://localhost:8080/resseler-sales-service/services/ProductAndCategoriesBS"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://resseler.rubyit.com.br/categories"
+	xmlns:prd="http://resseler.rubyit.com.br/products"
+	xmlns:com="http://resseler.rubyit.com.br/common"
+	targetNamespace="http://resseler.rubyit.com.br/categories"
+	version="1.0">
+	<xs:import
+		namespace="http://resseler.rubyit.com.br/products"
+		schemaLocation="products.xsd">
+	</xs:import>
+	<xs:import
+		namespace="http://resseler.rubyit.com.br/common"
+		schemaLocation="common.xsd">
+	</xs:import>
+	<xs:element name="loadCategories" type="tns:loadCategories"/>
+	
+	<xs:element name="loadCategoriesResponse" type="tns:loadCategoriesResponse"/>
+	
+	<xs:complexType name="category">
+		<xs:complexContent>
+			<xs:extension base="com:identification">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="categoryProducts" type="prd:productDTO"/>
+					<xs:element minOccurs="0" name="parentCategoryID" type="xs:long"/>
+					<xs:element minOccurs="0" name="rootCategory" type="xs:boolean"/>
+					<xs:element minOccurs="0" name="rootCategoryID" type="xs:long"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="loadCategoriesResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	
+	<xs:complexType name="loadCategories">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="products" type="prd:productDTO"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

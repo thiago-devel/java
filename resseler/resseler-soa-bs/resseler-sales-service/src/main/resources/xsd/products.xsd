@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://resseler.rubyit.com.br/products"
+	xmlns:cat="http://resseler.rubyit.com.br/categories"
+	xmlns:com="http://resseler.rubyit.com.br/common"
+	targetNamespace="http://resseler.rubyit.com.br/products"
+	version="1.0">
+	<xs:import
+		namespace="http://resseler.rubyit.com.br/common"
+		schemaLocation="common.xsd">
+	</xs:import>
+	<xs:import
+		namespace="http://resseler.rubyit.com.br/categories"
+		schemaLocation="categories.xsd">
+	</xs:import>
+	
+	<xs:simpleType name="priceTypes">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BASE"/>
+			<xs:enumeration value="RETAIL"/>
+			<xs:enumeration value="WHOLESALE"/>
+			<xs:enumeration value="ARBITRARY"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="productDTO">
+		<xs:complexContent>
+			<xs:extension base="com:identification">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="productAttributes" type="tns:productAttributes"/>
+					<xs:element minOccurs="0" name="productBrand" type="tns:brand"/>
+					<xs:element minOccurs="0" name="productCategory" type="cat:category"/>
+					<xs:element minOccurs="0" name="productPrice" type="tns:productPrice"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="productAttributes">
+		<xs:sequence/>
+	</xs:complexType>
+	
+	<xs:complexType name="brand">
+		<xs:complexContent>
+			<xs:extension base="com:identification">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="products" type="tns:productDTO"/>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="models" type="tns:modelBrand"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="modelBrand">
+		<xs:complexContent>
+			<xs:extension base="com:identification">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="code" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="productPrice">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="type" type="tns:priceTypes"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

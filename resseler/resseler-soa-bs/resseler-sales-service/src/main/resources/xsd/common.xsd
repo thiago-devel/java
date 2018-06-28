@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:com="http://resseler.rubyit.com.br/common"
+	targetNamespace="http://resseler.rubyit.com.br/common"
+	version="1.0">
+	<xs:element name="ErrorReturnFault" type="com:errorReturn"/>
+	
+	<xs:simpleType name="errorType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="SYSTEM"/>
+			<xs:enumeration value="BUSINESS"/>
+			<xs:enumeration value="VALIDATION"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="errorReturn">
+		<xs:sequence>
+			<xs:element name="errorCode" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="errorDetail" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="errorMessage" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element minOccurs="0" name="errorType" type="com:errorType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType abstract="true" name="identification">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="description" type="xs:string"/>
+			<xs:element minOccurs="0" name="ID" type="xs:long"/>
+			<xs:element minOccurs="0" name="name" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+</xs:schema>

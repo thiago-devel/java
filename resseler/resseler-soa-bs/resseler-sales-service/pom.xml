@@ -1,0 +1,289 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+        <groupId>br.com.resseler</groupId>
+        <artifactId>resseler-soa-bs</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>resseler-sales-service</artifactId>
+    <version>1.0</version>
+    <packaging>war</packaging>
+    
+    <name>resseler-sales-service</name>
+    <description>resseler-sales-service</description>
+
+    <properties>
+        <junit-version>4.12</junit-version>
+        <jaxb2.basics.version>1.11.1</jaxb2.basics.version>
+        <!--<spring-version>4.2.3.RELEASE</spring-version> -->
+        <commons-logging-version>1.1.1</commons-logging-version>
+        <sonar.exclusions>target/generated-sources/**</sonar.exclusions>
+		
+		<log4j.version>2.1</log4j.version>
+		<disruptor.version>3.3.0</disruptor.version>
+		<maven.plugin.compiler.version>3.1</maven.plugin.compiler.version>
+		<maven.plugin.source.version>3.0.1</maven.plugin.source.version>
+		<spring.version>4.3.3.RELEASE</spring.version>
+    </properties>
+        
+    <dependencies>
+        <!-- begin e-garantia -->
+        <dependency>
+            <groupId>br.com.resseler</groupId>
+            <artifactId>resseler-commons</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.resseler</groupId>
+            <artifactId>resseler-sales-repository</artifactId>
+            <version>1.0</version>
+        </dependency>
+         <dependency>
+             <groupId>br.com.resseler</groupId>
+             <artifactId>resseler-business</artifactId>
+             <version>1.0</version>
+         </dependency>
+        <!-- end e-garantia -->
+        <!-- begin servlet 3.0 -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- end servlet 3.0 -->
+        <!-- begin Apache CXF dependencies -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>asm</artifactId>
+                    <groupId>asm</groupId>
+                </exclusion>
+             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>        
+        <!-- end Apache CXF dependencies -->
+        <!-- begin JAXB -->
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>${jaxb2.basics.version}</version>
+        </dependency>       
+        <!-- end JAXB -->
+        <!-- begin Spring Dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
+        <!-- end Spring Dependencies -->
+        <!-- orika start -->
+        <dependency>
+           <groupId>ma.glasnost.orika</groupId>
+           <artifactId>orika-core</artifactId>
+           <version>${orika-core-version}</version>
+        </dependency>
+        <!-- orika end -->
+        <!-- begin Logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging-version}</version>
+        </dependency>
+        <!-- end Logging -->
+        <!-- begin Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- end Testing -->
+        <!-- begin findbugs annotations -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <!-- end findbugs -->
+    </dependencies>
+    
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        
+        <plugins>
+        	<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<contextReloadable>true</contextReloadable>
+				</configuration>
+			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>  
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${maven.war.plugin.version}</version>
+                <configuration>  
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-java2ws-plugin</artifactId>
+                <version>${cxf-version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                        <version>${cxf-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-frontend-simple</artifactId>
+                        <version>${cxf-version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <className>br.com.rubyit.resseler.soa.bs.sales.SalesBS</className>
+                            <genWsdl>no</genWsdl>
+                            <verbose>true</verbose>
+                        </configuration>
+                        <goals>
+                            <goal>java2ws</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <!-- CXF WSDL-to-Java code generation -->
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf-version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-basics</artifactId>
+                        <version>${jaxb2.basics.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-basics-annotate</artifactId>
+                        <version>1.0.2</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-sources-ProductsAndCategoriesBS</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated-sources</sourceRoot>
+                            <wsdlRoot>${basedir}/src/main/resources/wsdl</wsdlRoot>
+                            <includes>
+                                <include>ProductsAndCategoriesBS.wsdl</include>
+                            </includes>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/ProductsAndCategoriesBS.wsdl</wsdl>
+                                    <wsdlLocation>classpath:wsdl/ProductsAndCategoriesBS.wsdl</wsdlLocation>
+                                    <extraargs>
+                                        <extraarg>-exsh</extraarg> <!-- enable headers in stub -->
+                                        <extraarg>true</extraarg> <!-- enable headers in stub -->
+                                        <extraarg>-verbose</extraarg>
+                                        <extraarg>-validate</extraarg>
+                                        <!-- <extraarg>-xjc-Xannotate</extraarg> -->   <!-- this plugins helps to generate toString method -->
+                                        <!-- <extraarg>-xjc-XtoString</extraarg> -->   <!-- in created stub classes, but is bad to performance. Be careful to anabled it if you have collections -->
+                                    </extraargs>
+                                    <!-- <bindingFiles>
+                                        <bindingFile>${basedir}/src/main/resources/binding_pc.xml</bindingFile>
+                                    </bindingFiles> -->
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- END CXF WSDL-to-Java code generation -->
+            
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-eclipse-plugin</artifactId>
+                    <version>${maven.eclipse.plugin.version}</version>
+                    <configuration>
+                      <wtpversion>2.0</wtpversion>
+                      <downloadSources>true</downloadSources>
+                      <additionalConfig>
+                        <file>
+                          <name>.settings/org.eclipse.core.resources.prefs</name>
+                          <content>
+                            <![CDATA[eclipse.preferences.version=1${line.separator}encoding/<project>=${project.build.sourceEncoding}${line.separator}]]>
+                          </content>
+                        </file>
+                      </additionalConfig>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

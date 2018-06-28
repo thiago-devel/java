@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WSDirectSales.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="WSDirectSales_wsdirectsales_CustomerSalesService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://uatparceiros.cardif.com.br/wsdirectsales/CustomerSalesService</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

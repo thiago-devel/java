@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>br.com.resseler</groupId>
+        <artifactId>resseler-dao</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>resseler-sales-dao</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>resseler-sales-dao</name>
+    <description>resseler-sales-dao</description>
+
+    <dependencies>
+        <!-- kernel -->
+         <dependency>
+            <groupId>br.com.resseler</groupId>
+            <artifactId>resseler-commons</artifactId>
+            <version>1.0</version>
+         </dependency>
+         <dependency>
+            <groupId>br.com.resseler</groupId>
+            <artifactId>resseler-commons-dao</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- begin persistencia -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <exclusions>
+	            <exclusion>
+	                <groupId>org.jboss.logging</groupId>
+	                <artifactId>jboss-logging</artifactId>
+	            </exclusion>
+	        </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>42.0.0.jre7</version>
+		</dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+        <!-- end persistencia -->
+        <!-- begin spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <!-- begin spring -->
+        <!-- begin logging -->
+        <dependency>
+		    <groupId>commons-lang</groupId>
+		    <artifactId>commons-lang</artifactId>
+		    <version>2.3</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+        </dependency>
+        <!-- end logging -->
+        <!-- start extras -->
+        <!-- orika start -->
+        <dependency>
+           <groupId>ma.glasnost.orika</groupId>
+           <artifactId>orika-core</artifactId>
+           <version>${orika-core-version}</version>
+        </dependency>
+        <!-- orika end -->        
+        <!-- end extras -->
+        <!-- begin Billing Client
+        <dependency>
+            <groupId>br.com.cardif.ws</groupId>
+            <artifactId>BillingClient</artifactId>
+            <version>1.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-rt-databinding-aegis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        end Billing Client -->
+        <!-- begin test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- end test -->
+        <!-- begin findbugs annotations -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <!-- end findbugs -->
+    </dependencies>
+    
+    <build>
+		<finalName>${project.artifactId}</finalName>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>process-test-classes</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="${basedir}/target/classes">
+                                    <fileset dir="${basedir}/target/test-classes" includes="**/*" />
+                                </copy>
+                                <copy todir="${basedir}/target/classes">
+                                    <fileset dir="${basedir}/target/test-classes" includes="**/*.sql" />
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+			        <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-eclipse-plugin</artifactId>
+			        <version>${maven.eclipse.plugin.version}</version>
+			        <configuration>
+			          <additionalConfig>
+			            <file>
+			              <name>.settings/org.eclipse.core.resources.prefs</name>
+			              <content>
+			                <![CDATA[eclipse.preferences.version=1${line.separator}encoding/<project>=${project.build.sourceEncoding}${line.separator}]]>
+			              </content>
+			            </file>
+			          </additionalConfig>
+			        </configuration>
+		      	</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<profiles>
+        <profile>
+            <id>generate-DDL</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- BEGIN generate DDL -->
+                    <!-- to DROP schema use: mvn -Pgenerate-DDL hibernate:drop -->
+                    <!-- to XREATE schema use: mvn -Pgenerate-DDL hibernate:create -->
+                    <plugin>
+                        <groupId>de.juplo</groupId>
+                        <artifactId>hibernate-maven-plugin</artifactId>
+                        <version>2.0.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>drop</goal>
+                                    <goal>create</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <driver>org.postgresql.Driver</driver>
+                            <dialect>org.hibernate.dialect.PostgreSQLDialect</dialect>
+                            <url><![CDATA[jdbc:postgresql://localhost:5432/resseler]]></url>
+                            <username>userdes</username>
+                            <password>userdes</password>
+                        </configuration>
+                    </plugin>
+                    <!-- END generate DDL -->
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

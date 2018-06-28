@@ -1,0 +1,761 @@
+<wsdl:definitions name="SalesBSService"
+  targetNamespace="http://wsdirectsales.resseler.com.br/"
+  xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:tns="http://wsdirectsales.resseler.com.br/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+    <xs:schema
+      targetNamespace="http://wsdirectsales.resseler.com.br/"
+      version="1.0"
+      xmlns:tns="http://wsdirectsales.resseler.com.br/"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="ErrorReturnFault" type="tns:errorReturn"/>
+      <xs:element name="doSale" type="tns:doSaleIN"/>
+      <xs:element name="doSaleResponse" type="tns:doSaleOUT"/>
+      <xs:complexType name="doSaleIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="doSaleRequest" type="tns:doSaleRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="doSaleOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="doSaleResponse" type="tns:doSaleResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="doSaleRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="sale" type="tns:sale"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="doSaleResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="certificate" type="tns:insuranceCertificate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="retrieveCommissions" type="tns:retrieveCommissionsIN"/>
+      <xs:element name="retrieveCommissionsResponse" type="tns:retrieveCommissionsOUT"/>
+      <xs:complexType name="retrieveCommissionsIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="retrieveCommissionsRequest" type="tns:retrieveCommissionsRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrieveCommissionsOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="retrieveCommissionsResponse" type="tns:retrieveCommissionsResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrieveCommissionsRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+          <xs:element minOccurs="0" name="operator" type="tns:operator"/>
+          <xs:element minOccurs="0" name="pageNumber" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrieveCommissionsResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="certificates" nillable="true" type="tns:insuranceCertificate"/>
+          <xs:element minOccurs="0" name="pageCount" nillable="true" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="retrievePerformance" type="tns:retrievePerformanceIN"/>
+      <xs:element name="retrievePerformanceResponse" type="tns:retrievePerformanceOUT"/>
+      <xs:complexType name="retrievePerformanceIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="retrievePerformanceRequest" type="tns:retrievePerformanceRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrievePerformanceOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="retrievePerformanceResponse" type="tns:retrievePerformanceResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrievePerformanceRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="product" type="tns:productDTO"/>
+          <xs:element minOccurs="0" name="regional" type="tns:regional"/>
+          <xs:element minOccurs="0" name="workshop" type="tns:workshop"/>
+          <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:dateTime"/>
+		  <xs:element minOccurs="0" name="pageNumber" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="retrievePerformanceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="score" nillable="true" type="tns:salesmanScore"/>
+          <xs:element minOccurs="0" name="commissionValueTotal" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="activeCertificatesQtyTotal" type="xs:long"/>
+          <xs:element minOccurs="0" name="activeCertificatesValueTotal" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="pageCount" nillable="true" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+	<xs:element name="saveSalesman" type="tns:saveSalesmanIN" />
+	<xs:element name="saveSalesmanResponse" type="tns:saveSalesmanOUT" />
+	<xs:complexType name="saveSalesmanIN">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="saveSalesmanRequest" type="tns:saveSalesmanRequest" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="saveSalesmanOUT">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="saveSalesmanResponse"
+				type="tns:saveSalesmanResponse" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="saveSalesmanRequest">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="salesman" type="tns:salesman" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="saveSalesmanResponse">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="inserted" type="xs:boolean" />
+			<xs:element minOccurs="0" name="message" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	  <xs:element name="updateBranchSalesman" type="tns:updateBranchSalesmanIN"/>
+      <xs:element name="updateBranchSalesmanResponse" type="tns:updateBranchSalesmanOUT"/>
+      <xs:complexType name="updateBranchSalesmanIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updateBranchSalesmanRequest" type="tns:updateBranchSalesmanRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updateBranchSalesmanOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updateBranchSalesmanResponse" type="tns:updateBranchSalesmanResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updateBranchSalesmanRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updateBranchSalesmanResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updated" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+	<xs:element name="findSalesmanBch" type="tns:findSalesmanBchIN" />
+	<xs:element name="findSalesmanBchResponse" type="tns:findSalesmanBchOUT" />
+	<xs:complexType name="findSalesmanBchIN">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="findSalesmanBchRequest"
+				type="tns:findSalesmanBchRequest" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="findSalesmanBchOUT">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="findSalesmanBchResponse"
+				type="tns:findSalesmanBchResponse" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="findSalesmanBchRequest">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="salesman" type="tns:salesman" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="findSalesmanBchResponse">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="message" type="xs:string" />
+			<xs:element minOccurs="0" name="salesman" type="tns:salesman" />
+		</xs:sequence>
+	</xs:complexType>
+      <xs:element name="checkPaymentMethod" type="tns:checkPaymentMethodIN"/>
+      <xs:element name="checkPaymentMethodResponse" type="tns:checkPaymentMethodOUT"/>
+      <xs:complexType name="checkPaymentMethodIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="checkPaymentMethodRequest"
+            type="tns:checkPaymentMethodRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="checkPaymentMethodOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="checkPaymentMethodResponse" type="tns:checkPaymentMethodResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="checkPaymentMethodRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="certificate" type="tns:insuranceCertificate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="checkPaymentMethodResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="isValid" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="updatePaymentMethod" type="tns:updatePaymentMethodIN"/>
+      <xs:element name="updatePaymentMethodResponse" type="tns:updatePaymentMethodOUT"/>
+      <xs:complexType name="updatePaymentMethodIN">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updatePaymentMethodRequest" type="tns:updatePaymentMethodRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updatePaymentMethodOUT">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updatePaymentMethodResponse" type="tns:updatePaymentMethodResponse"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updatePaymentMethodRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="certificate" type="tns:insuranceCertificate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="updatePaymentMethodResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="updated" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="keyIdValue" type="xs:string"/>
+      <xs:complexType name="productDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="descripton" type="xs:string"/>
+          <xs:element minOccurs="0" name="ID" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="errorReturn">
+      	<xs:sequence>
+      		<xs:element name="errorCode" type="xs:string" nillable="true" minOccurs="0"/>
+      		<xs:element name="errorDetail" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element name="errorMessage" type="xs:string" nillable="true" minOccurs="0"/>
+			<xs:element minOccurs="0" name="errorType" type="tns:errorType"/>
+      	</xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="regional">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" minOccurs="0" name="workshops" nillable="true" type="tns:workshop"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="identification">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="description" type="xs:string"/>
+          <xs:element minOccurs="0" name="ID" type="xs:long"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="workshop">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="branchCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="regionalID" type="xs:int"/>
+              <xs:element maxOccurs="unbounded" minOccurs="0" name="sallers" nillable="true" type="tns:salesman"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="salesman">
+        <xs:complexContent>
+          <xs:extension base="tns:operator">
+				<xs:sequence>
+				    <xs:element minOccurs="0" name="salesmanCod" type="xs:string" />
+					<xs:element minOccurs="0" name="salesmanBch" type="xs:int" />
+					<xs:element minOccurs="0" name="salesmanAtuBch" type="xs:int" />
+					<xs:element minOccurs="0" name="regionName" type="xs:string" />
+					<xs:element minOccurs="0" name="bchId" type="xs:long" />
+				</xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="operator">
+        <xs:complexContent>
+          <xs:extension base="tns:systemPerson">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="operatorName" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="systemPerson">
+        <xs:complexContent>
+          <xs:extension base="tns:personDTO">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="description" type="xs:string"/>
+              <xs:element minOccurs="0" name="drtID" type="xs:int"/>
+              <xs:element minOccurs="0" name="ID" type="xs:int"/>
+              <xs:element minOccurs="0" name="login" type="tns:loginDTO"/>
+              <xs:element minOccurs="0" name="mlID" type="xs:int"/>
+              <xs:element minOccurs="0" name="partner" type="tns:partner"/>
+              <xs:element minOccurs="0" name="role" type="xs:string"/>
+              <xs:element minOccurs="0" name="SUP" type="xs:int"/>
+              <xs:element minOccurs="0" name="type" type="xs:int"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="personDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="birthDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="contacts" type="tns:contacts"/>
+          <xs:element minOccurs="0" name="fullName" type="xs:string"/>
+          <xs:element minOccurs="0" name="gender" type="tns:gender"/>
+          <xs:element minOccurs="0" name="identity" type="tns:identityDTO"/>
+          <xs:element minOccurs="0" name="maritalStatus" type="tns:maritalStatus"/>
+          <xs:element minOccurs="0" name="nationality" type="xs:string"/>
+          <xs:element minOccurs="0" name="user" type="tns:userDTO"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="loginDTO">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="password" type="xs:string"/>
+              <xs:element minOccurs="0" name="username" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+	  <xs:complexType name="userDTO">
+		<xs:complexContent>
+		<xs:extension base="tns:identification">
+			<xs:sequence>
+				<xs:element minOccurs="0" name="userPwd" type="xs:string" />
+				<xs:element minOccurs="0" name="userCod" type="xs:string" />
+				<xs:element minOccurs="0" name="profileId" type="xs:string" />
+				<xs:element minOccurs="0" name="userWord" type="xs:string" />
+				<xs:element minOccurs="0" name="userGrp" type="xs:string" />
+			</xs:sequence>
+		</xs:extension>
+		</xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="partner">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="contacts">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="contact" nillable="true"
+            type="tns:contactDTO"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="contactDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="address" type="tns:addressDTO"/>
+          <xs:element minOccurs="0" name="phone" type="tns:phoneDTO"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="addressDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="addressDetail" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressPostalCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressReference" type="xs:string"/>
+          <xs:element minOccurs="0" name="city" type="xs:string"/>
+          <xs:element minOccurs="0" name="neighborhood" type="xs:string"/>
+          <xs:element minOccurs="0" name="state" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="tns:addressType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="phoneDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="tns:phoneType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="identityDTO">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="documentType" type="tns:document"/>
+          <xs:element minOccurs="0" name="documentValue" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="salesmanScore">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="activeCertificatesQty" type="xs:long"/>
+          <xs:element minOccurs="0" name="activeCertificatesValue" type="xs:double"/>
+          <xs:element minOccurs="0" name="product" type="tns:productDTO"/>
+          <xs:element minOccurs="0" name="regional" type="tns:regional"/>
+          <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+          <xs:element minOccurs="0" name="taxes" type="tns:taxes"/>
+          <xs:element minOccurs="0" name="coverages" type="tns:coverages"/>
+          <xs:element minOccurs="0" name="totalCommissionValue" type="xs:double"/>
+          <xs:element minOccurs="0" name="workshop" type="tns:workshop"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="insuranceCertificate">
+        <xs:complexContent>
+          <xs:extension base="tns:certificateDTO">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="coverages" type="tns:coverages"/>
+              <xs:element minOccurs="0" name="customer" type="tns:customer"/>
+			  <xs:element minOccurs="0" name="insuredObject" type="tns:insuredObject"/>
+              <xs:element minOccurs="0" name="paymentMethod" type="tns:paymentMethod"/>
+			  <xs:element minOccurs="0" name="plan" type="xs:string"/>
+              <xs:element minOccurs="0" name="product" type="tns:insuranceDTO"/>
+              <xs:element minOccurs="0" name="saleCommissionValue" type="xs:decimal"/>
+              <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+              <xs:element minOccurs="0" name="taxes" type="tns:taxes"/>
+              <xs:element minOccurs="0" name="workshop" type="tns:workshop"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="certificateDTO">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="capitalSeries" type="tns:capitalSeries"/>
+              <xs:element minOccurs="0" name="certificateCreationDate" type="xs:dateTime"/>
+              <xs:element minOccurs="0" name="certificateValidityEndDate" type="xs:dateTime"/>
+              <xs:element minOccurs="0" name="certificateValidityInitDate" type="xs:dateTime"/>
+              <xs:element minOccurs="0" name="contractNumber" type="xs:string"/>
+              <xs:element minOccurs="0" name="policeNumber" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="coverages">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="coverage" nillable="true"
+            type="tns:coverage"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="coverage">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="coveragePremium" type="xs:decimal"/>
+              <xs:element minOccurs="0" name="coverageValueLimit" type="xs:decimal"/>
+              <xs:element minOccurs="0" name="installmentLimit" type="xs:int"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+	  <xs:complexType name="insuredObject">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="beneficiaries" nillable="true" type="tns:beneficiary"/>
+          <xs:element minOccurs="0" name="ID" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+	  <xs:complexType name="beneficiary">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="birthDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="fullName" type="xs:string"/>
+		  <xs:element minOccurs="0" name="percentValue" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="ID" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="customer">
+        <xs:complexContent>
+          <xs:extension base="tns:systemPerson">
+            <xs:sequence/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="paymentMethod">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="cardPayment" type="tns:cardPaymentDTO"/>
+              <xs:element minOccurs="0" name="paymentType" type="xs:int"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="cardPaymentDTO">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="cardDisplayName" type="xs:string"/>
+              <xs:element minOccurs="0" name="cardFlag" type="xs:string"/>
+              <xs:element minOccurs="0" name="cardNumber" type="xs:string"/>
+              <xs:element minOccurs="0" name="cardSecurityCode" type="xs:string"/>
+              <xs:element minOccurs="0" name="cardValidity" type="xs:dateTime"/>
+              <xs:element minOccurs="0" name="cardValue" type="xs:decimal"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="insuranceDTO">
+        <xs:complexContent>
+          <xs:extension base="tns:productDTO">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="premiumValue" type="xs:decimal"/>
+              <xs:element minOccurs="0" name="status" type="tns:insuranceStatus"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="taxes">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="tax" nillable="true" type="tns:tax"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="tax">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="taxType" type="tns:taxType"/>
+          <xs:element minOccurs="0" name="taxValue" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="capitalSeries">
+        <xs:complexContent>
+          <xs:extension base="tns:identification">
+            <xs:sequence>
+              <xs:element minOccurs="0" name="capitalNumber" type="xs:integer"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="sale">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="customer" type="tns:customer"/>
+          <xs:element minOccurs="0" name="paymentMethod" type="tns:paymentMethod"/>
+          <xs:element minOccurs="0" name="product" type="tns:productDTO"/>
+          <xs:element minOccurs="0" name="salesman" type="tns:salesman"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="addressType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="RESIDENTIAL"/>
+          <xs:enumeration value="BUSINESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="phoneType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="RESIDENTIAL"/>
+          <xs:enumeration value="MOBILE"/>
+          <xs:enumeration value="BUSINESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="gender">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="MALE"/>
+          <xs:enumeration value="FEMALE"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="document">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="CPF"/>
+          <xs:enumeration value="CNPJ"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="maritalStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="MARRIED"/>
+          <xs:enumeration value="SINGLE"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="insuranceStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ACTIVE"/>
+          <xs:enumeration value="PENDING"/>
+          <xs:enumeration value="CANCELLED"/>
+          <xs:enumeration value="REFUSED"/>
+          <xs:enumeration value="PROPOSAL"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="taxType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="IOF"/>
+          <xs:enumeration value="PROLABORE"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="errorType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="SYSTEM"/>
+          <xs:enumeration value="BUSINESS"/>
+          <xs:enumeration value="VALIDATION"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="doSaleResponse">
+    <wsdl:part element="tns:doSaleResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="doSale">
+    <wsdl:part element="tns:doSale" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveCommissionsResponse">
+    <wsdl:part element="tns:retrieveCommissionsResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveCommissions">
+    <wsdl:part element="tns:retrieveCommissions" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrievePerformanceResponse">
+    <wsdl:part element="tns:retrievePerformanceResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrievePerformance">
+    <wsdl:part element="tns:retrievePerformance" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkPaymentMethodResponse">
+    <wsdl:part element="tns:checkPaymentMethodResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkPaymentMethod">
+    <wsdl:part element="tns:checkPaymentMethod" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePaymentMethodResponse">
+    <wsdl:part element="tns:updatePaymentMethodResponse" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePaymentMethod">
+    <wsdl:part element="tns:updatePaymentMethod" name="parameters"> </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="defineKeyId">
+    <wsdl:part element="tns:keyIdValue" name="keyId"> </wsdl:part>
+  </wsdl:message>
+	<wsdl:message name="saveSalesmanResponse">
+		<wsdl:part element="tns:saveSalesmanResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="saveSalesman">
+		<wsdl:part element="tns:saveSalesman" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateBranchSalesmanResponse">
+		<wsdl:part element="tns:updateBranchSalesmanResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateBranchSalesman">
+		<wsdl:part element="tns:updateBranchSalesman" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="findSalesmanBchResponse">
+		<wsdl:part element="tns:findSalesmanBchResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="findSalesmanBch">
+		<wsdl:part element="tns:findSalesmanBch" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ErrorReturnException">
+    	<wsdl:part name="ErrorReturnFault" element="tns:ErrorReturnFault"> </wsdl:part>
+  	</wsdl:message>
+  <wsdl:portType name="SalesBS">
+    <wsdl:operation name="retrievePerformance">
+      <wsdl:input message="tns:retrievePerformance"> </wsdl:input>
+      <wsdl:output message="tns:retrievePerformanceResponse"> </wsdl:output>
+      <wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveCommissions">
+      <wsdl:input message="tns:retrieveCommissions"> </wsdl:input>
+      <wsdl:output message="tns:retrieveCommissionsResponse"> </wsdl:output>
+      <wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="doSale">
+      <wsdl:input message="tns:doSale"> </wsdl:input>
+      <wsdl:output message="tns:doSaleResponse"> </wsdl:output>
+      <wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="checkPaymentMethod">
+      <wsdl:input message="tns:checkPaymentMethod"> </wsdl:input>
+      <wsdl:output message="tns:checkPaymentMethodResponse"> </wsdl:output>
+      <wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="updatePaymentMethod">
+      <wsdl:input message="tns:updatePaymentMethod"> </wsdl:input>
+      <wsdl:output message="tns:updatePaymentMethodResponse"> </wsdl:output>
+      <wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+    </wsdl:operation>
+	<wsdl:operation name="saveSalesman">
+		<wsdl:input message="tns:saveSalesman">
+		</wsdl:input>
+		<wsdl:output message="tns:saveSalesmanResponse">
+		</wsdl:output>
+		<wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+	</wsdl:operation>
+	<wsdl:operation name="updateBranchSalesman">
+		<wsdl:input message="tns:updateBranchSalesman">
+		</wsdl:input>
+		<wsdl:output message="tns:updateBranchSalesmanResponse">
+		</wsdl:output>
+		<wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+	</wsdl:operation>
+	<wsdl:operation name="findSalesmanBch">
+		<wsdl:input message="tns:findSalesmanBch">
+		</wsdl:input>
+		<wsdl:output message="tns:findSalesmanBchResponse">
+		</wsdl:output>
+		<wsdl:fault message="tns:ErrorReturnException" name="errorReturnFault"></wsdl:fault>
+	</wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SalesBSServiceSoapBinding" type="tns:SalesBS">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="retrievePerformance">
+      <soap:operation soapAction="http://wsdirectsales.resseler.com.br/retrievePerformance"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveCommissions">
+      <soap:operation soapAction="http://wsdirectsales.resseler.com.br/retrieveCommissions"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="doSale">
+      <soap:operation soapAction="http://wsdirectsales.resseler.com.br/doSale"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkPaymentMethod">
+      <soap:operation soapAction="http://wsdirectsales.resseler.com.br/checkPaymentMethod"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updatePaymentMethod">
+      <soap:operation soapAction="http://wsdirectsales.resseler.com.br/updatePaymentMethod"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <soap:header message="tns:defineKeyId" part="keyId" use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+	<wsdl:operation name="saveSalesman">
+		<soap:operation soapAction="http://wsdirectsales.resseler.com.br/saveSalesman" />
+		<wsdl:input>
+			<soap:body use="literal" />
+		</wsdl:input>
+		<wsdl:output>
+			<soap:body use="literal" />
+		</wsdl:output>
+	</wsdl:operation>
+	<wsdl:operation name="updateBranchSalesman">
+		<soap:operation
+			soapAction="http://wsdirectsales.resseler.com.br/updateBranchSalesman" />
+		<wsdl:input>
+			<soap:body use="literal" />
+		</wsdl:input>
+		<wsdl:output>
+			<soap:body use="literal" />
+		</wsdl:output>
+	</wsdl:operation>
+	   <wsdl:operation name="findSalesmanBch">
+        <soap:operation
+            soapAction="http://wsdirectsales.resseler.com.br/findSalesmanBch" />
+        <wsdl:input>
+            <soap:body use="literal" />
+        </wsdl:input>
+        <wsdl:output>
+            <soap:body use="literal" />
+        </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SalesBSService">
+    <wsdl:port binding="tns:SalesBSServiceSoapBinding" name="SalesBSPort">
+      <soap:address location="http://SAOW00754524:8081/wsdirectsales-sales-service/SalesBS"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

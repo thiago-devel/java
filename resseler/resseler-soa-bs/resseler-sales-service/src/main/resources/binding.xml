@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxws:bindings wsdlLocation="wsdl/SalesBS.wsdl"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:annox="http://annox.dev.java.net"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    jaxb:extensionBindingPrefixes="xjc annox">
+	<jaxb:bindings>
+		<jaxb:globalBindings generateElementProperty="false" />
+	</jaxb:bindings>
+    <jaxws:bindings
+        node="wsdl:definitions/wsdl:types/xs:schema[@targetNamespace='http://wsdirectsales.resseler.com.br/']"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb" 
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        jxb:extensionBindingPrefixes="xjc"
+        jxb:version="2.1">
+        <jxb:globalBindings
+        	generateElementProperty="false">
+            
+            <xjc:javaType
+            	name="java.util.Calendar" xmlType="xs:dateTime"
+	               adapter="br.com.rubyit.resseler.soa.bs.sales.jaxb.adapters.DateTypeCalendarAdapter" >
+            </xjc:javaType>
+            
+            <!-- <jaxb:bindings node="xs:complexType[@name='issueJIIB39CType']/xs:attribute[@name='test']">
+                <annox:annotate target="setter">@java.lang.Override</annox:annotate>
+                <annox:annotate target="getter">@java.lang.Override</annox:annotate>
+            </jaxb:bindings> -->
+            
+            <!-- <jxb:javaType
+            	name="java.util.Date" xmlType="xs:date"
+                   parseMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.DateTypeAdapter.parseDate"
+                   printMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.DateTypeAdapter.printDate"/>           
+            <jxb:javaType
+            	name="java.lang.Boolean" xmlType="xs:boolean"
+                   parseMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.BooleanTypeAdapter.parseBoolean"
+                   printMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.BooleanTypeAdapter.printBoolean"/>           
+            <jxb:javaType
+            	name="java.lang.Integer" xmlType="xs:int"
+                   parseMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.IntegerTypeAdapter.parseInteger"
+                   printMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.IntegerTypeAdapter.printInteger"/>           
+            <jxb:javaType
+            	name="java.lang.Long" xmlType="xs:long"
+                   parseMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.LongTypeAdapter.parseLong"
+                   printMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.LongTypeAdapter.printLong"/>           
+            <jxb:javaType
+            	name="java.lang.Double" xmlType="xs:double"
+                   parseMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.DoubleTypeAdapter.parseDouble"
+                   printMethod="br.com.cardif.service.impl.cxf.jaxb.adapters.DoubleTypeAdapter.printDouble"/>
+            -->          
+            
+            <jxb:serializable uid="1"/>
+            
+        </jxb:globalBindings>
+    </jaxws:bindings>
+</jaxws:bindings>

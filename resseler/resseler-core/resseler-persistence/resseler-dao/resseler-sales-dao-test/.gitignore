@@ -1,0 +1,6 @@
+/target/
+/.classpath
+/.settings/
+/.project
+/bin/
+/audit-trail-logging-dao-test.log

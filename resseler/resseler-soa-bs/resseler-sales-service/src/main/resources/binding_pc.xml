@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxws:bindings wsdlLocation="wsdl/SalesBS.wsdl"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:annox="http://annox.dev.java.net"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    jaxb:extensionBindingPrefixes="xjc annox">
+	<jaxb:bindings>
+		<jaxb:globalBindings generateElementProperty="false" />
+	</jaxb:bindings>
+    <jaxws:bindings
+        node="wsdl:definitions/wsdl:types/xs:schema[@targetNamespace='http://resseler.rubyit.com.br/']"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb" 
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        jxb:extensionBindingPrefixes="xjc"
+        jxb:version="2.1">
+        <jxb:globalBindings
+        	generateElementProperty="false">
+            
+            <xjc:javaType
+            	name="java.util.Calendar" xmlType="xs:dateTime"
+	               adapter="br.com.rubyit.resseler.soa.bs.sales.jaxb.adapters.DateTypeCalendarAdapter" >
+            </xjc:javaType>
+            
+        </jxb:globalBindings>
+    </jaxws:bindings>
+</jaxws:bindings>
