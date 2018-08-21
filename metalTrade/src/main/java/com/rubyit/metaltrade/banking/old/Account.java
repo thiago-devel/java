@@ -1,4 +1,4 @@
-package com.rubyit.metaltrade.banking.transactions;
+package com.rubyit.metaltrade.banking.old;
 
 public class Account {
 
@@ -13,8 +13,12 @@ public class Account {
 		return balance;
 	}
 	
+	public Currency getCurrency() {
+		return currency;
+	}
+	
 	public void withdraw(Money amount, Account target, MfDate date) {
-		
+		new AccountingTransaction(amount, this, target, date);
 	}
 
 	public void addEntry(Entry entry) {

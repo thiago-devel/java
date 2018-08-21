@@ -1,4 +1,4 @@
-package com.rubyit.metaltrade.banking.transactions;
+package com.rubyit.metaltrade.banking.old;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

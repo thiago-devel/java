@@ -1,13 +1,13 @@
-package com.rubyit.metaltrade.banking.transactions.test;
+package com.rubyit.metaltrade.banking.old.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.rubyit.metaltrade.banking.transactions.Account;
-import com.rubyit.metaltrade.banking.transactions.Currency;
-import com.rubyit.metaltrade.banking.transactions.MfDate;
-import com.rubyit.metaltrade.banking.transactions.Money;
+import com.rubyit.metaltrade.banking.old.Account;
+import com.rubyit.metaltrade.banking.old.Currency;
+import com.rubyit.metaltrade.banking.old.MfDate;
+import com.rubyit.metaltrade.banking.old.Money;
 
 public class BalanceUsingTransactionsTest {
 
