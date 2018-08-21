@@ -1,4 +1,4 @@
-package com.rubyit.metaltrade.m;
+package com.rubyit.metaltrade;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

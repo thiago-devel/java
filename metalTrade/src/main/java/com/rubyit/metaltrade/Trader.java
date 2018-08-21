@@ -1,6 +1,6 @@
 package com.rubyit.metaltrade;
 
-import static com.rubyit.metaltrade.m.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.getGson;
 
 import java.util.Map;
 import java.util.TreeMap;

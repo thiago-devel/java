@@ -12,6 +12,7 @@ import com.rubyit.metaltrade.banking.WithdrawRunnable;
  * account.
  */
 public class BankAccountThreadRunner {
+
 	public static void main(String[] args) {
 		BankAccount account = new BankAccount();
 		final double AMOUNT = 100;

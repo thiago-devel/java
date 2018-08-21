@@ -1,6 +1,6 @@
-package com.rubyit.metaltrade.m;
+package com.rubyit.metaltrade;
 
-import static com.rubyit.metaltrade.m.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.getGson;
 
 import java.math.BigDecimal;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.rubyit.metaltrade;
 
-import static com.rubyit.metaltrade.m.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.getGson;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -9,9 +9,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.rubyit.metaltrade.m.Asset;
-import com.rubyit.metaltrade.m.MyAsset;
 
 public class Wallet {
 	private String ID;

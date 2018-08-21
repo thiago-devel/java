@@ -1,6 +1,6 @@
 package com.rubyit.metaltrade;
 
-import static com.rubyit.metaltrade.m.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.getGson;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -8,8 +8,6 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-
-import com.rubyit.metaltrade.m.Asset;
 
 public class Transaction {
 
