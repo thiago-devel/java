@@ -15,10 +15,16 @@ public class Wallet {
 	private Set<MyAsset> assets;
 	transient private Lock assetChangeLock;
 
-	Wallet() {
+	public Wallet() {
 		ID = UUID.randomUUID().toString();
 		assets = new HashSet<>();
 		assetChangeLock = new ReentrantLock();
+	}
+	public MyAsset getAsset(String assetName) {
+		return null;
+	}
+	
+	public void update(MyAsset asset) {
 	}
 	
 	public void update(final Transaction tx) throws InterruptedException {
