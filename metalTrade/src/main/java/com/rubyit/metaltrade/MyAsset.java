@@ -21,6 +21,13 @@ public class MyAsset {
 		balanceChangeLock = new ReentrantLock();
 		sufficientFundsCondition = balanceChangeLock.newCondition();
 	}
+	
+	public MyAsset(Asset asset, BigDecimal amount) {
+		this.asset = asset;
+		balance = amount;
+		balanceChangeLock = new ReentrantLock();
+		sufficientFundsCondition = balanceChangeLock.newCondition();
+	}
 
 	public void deposit(BigDecimal amount) {
 		balanceChangeLock.lock();
