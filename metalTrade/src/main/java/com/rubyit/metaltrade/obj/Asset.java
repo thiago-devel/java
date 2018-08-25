@@ -1,4 +1,4 @@
-package com.rubyit.metaltrade;
+package com.rubyit.metaltrade.obj;
 
 import static com.rubyit.metaltrade.Utils.getGson;
 

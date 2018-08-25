@@ -1,15 +1,15 @@
 package com.rubyit.metaltrade.orderbook;
 
 import static com.rubyit.metaltrade.Utils.getGson;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -18,14 +18,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.mockito.Mockito.*;
-
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.rubyit.metaltrade.Asset;
-import com.rubyit.metaltrade.Transaction;
+import com.rubyit.metaltrade.obj.Asset;
 import com.rubyit.metaltrade.orderbook.Order.Type;
 
 class OrderBook {
@@ -116,13 +112,6 @@ class Wallet {
 		}
 		
 		return null;
-	}
-	
-	public void update(MyAsset asset) {
-	}
-	
-	public void update(final Transaction tx) throws InterruptedException {
-		
 	}
 	
 	private MyAsset getExtractAssetBy(final Asset asset) {
@@ -299,6 +288,9 @@ class MyAsset {
 	}
 }
 
+
+
+
 public class TestOrderBook {
 	
 	private static final Asset GOLD = new Asset("GOLD");
@@ -359,7 +351,15 @@ public class TestOrderBook {
 		
 		
 		
-		// TODO: add tx chain inside of this method
+		/*
+		 * FROM Investopedia1s website:
+		 * 
+		 * "The bid (buy price) represents how much of the quote currency you need to get one unit 
+		 * of the base currency. Conversely, when you sell the currency pair, you sell the base 
+		 * currency and receive the quote currency. The ask (sell price) for the currency pair 
+		 * represents how much you will get in the quote currency for selling one unit of base 
+		 * currency."
+		 */
 		orderbook.performMatcher();
 		
 		

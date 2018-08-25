@@ -1,4 +1,4 @@
-package com.rubyit.metaltrade;
+package com.rubyit.metaltrade.bs;
 
 import static com.rubyit.metaltrade.Utils.getGson;
 
@@ -6,15 +6,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public abstract class Trader {
-
-	protected Wallet myWallet;
-	protected String name;
-	protected String ID;
+public class Account {
 	
-	Trader(String name) {
+	private Wallet myWallet;
+	private String ID;
+	
+	Account() {
 		myWallet = new Wallet();
-		this.name = name;
 		ID = UUID.randomUUID().toString();
 	}
 	
@@ -22,8 +20,15 @@ public abstract class Trader {
 	public String toString() {
 		Map<String, Object> json = new TreeMap<String, Object>();
 		json.put("ID", ID);
-		json.put("name", name);
 		json.put("myWallet", myWallet);
 		return getGson().toJson(json);
+	}
+	
+	public Wallet getWallet() {
+		return myWallet;
+	}
+	
+	public String getID() {
+		return ID;
 	}
 }
