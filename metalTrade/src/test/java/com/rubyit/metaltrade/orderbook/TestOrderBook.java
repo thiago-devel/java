@@ -8,11 +8,14 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -21,16 +24,188 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.jayway.jsonpath.internal.path.ArraySliceOperation;
 import com.rubyit.metaltrade.obj.Asset;
 import com.rubyit.metaltrade.orderbook.Order.Type;
 
+class Pair {
+
+	private final Asset amountAsset;
+	private final Asset priceAsset;
+	private final String currencyPair; 
+	
+	Pair(Asset amountAsset, Asset priceAsset) {
+		if (amountAsset == null || priceAsset == null) {
+			throw new RuntimeException("ERROR: unable to create a currency pair with invalid fields: {amountAsset=" + amountAsset + ", priceAsset=" + priceAsset + "}") ;
+		}
+		this.amountAsset = amountAsset;
+		this.priceAsset = priceAsset;
+		this.currencyPair = amountAsset.getName() + "/" + priceAsset.getName(); 
+	}
+
+	public Asset getAmountAsset() {
+		return amountAsset;
+	}
+
+	public Asset getPriceAsset() {
+		return priceAsset;
+	}
+
+	public String getCurrencyPair() {
+		return currencyPair;
+	}
+
+	@Override
+	public String toString() {
+		Map<String, Object> json = new TreeMap<String, Object>();
+		json.put("amountAsset", amountAsset);
+		json.put("priceAsset", priceAsset);
+		json.put("currencyPair", currencyPair);
+		return getGson().toJson(json);
+	}
+}
+
+class CurrencyPair {
+	
+	private Pair pair;
+	private Set<Order> sellOrders;
+	private Set<Order> buyOrders;
+	
+	CurrencyPair(Pair pair) {
+		this.pair = pair;
+		buyOrders = new TreeSet<>();
+		sellOrders = new TreeSet<>();
+	}
+	
+	/*
+	 *  "an instrument that is bought or sold. If you buy a currency pair, you 
+	 *  buy the base currency and implicitly sell the quoted currency."
+	 */
+	public void addOrder(Order order) {
+		String assetID = order.getAssetID();
+		String exchangeAssetID = order.getExchangeAssetID();
+		String amountAssetID = pair.getAmountAsset().getID();
+		String priceAssetID = pair.getPriceAsset().getID();
+		if (
+			(assetID.equals(amountAssetID))
+			&& (exchangeAssetID.equals(priceAssetID))
+		   ) {
+			sellOrders.add(order);
+		}
+		if (
+			(assetID.equals(priceAssetID))
+			&& (exchangeAssetID.equals(amountAssetID))
+		   ) {
+			
+			buyOrders.add(order);
+		}
+		
+		throw new RuntimeException("ERROR: that order {order=" + order + "} doesn't belongs to that pair {" + pair + "}");
+	}
+	
+	public List<Order> getBuyOrders() {
+		return new ArrayList<>(buyOrders); // TODO: to order by value before return
+	}
+	
+	public List<Order> getSellOrder() {
+		return new ArrayList<>(sellOrders); // TODO: to order by value before return
+	}
+	
+	public Order getOrder(String orderID) {
+		for (Order order : buyOrders) {
+			if (order.getID().equals(orderID)) {
+				return order;
+			}
+		}
+		for (Order order : sellOrders) {
+			if (order.getID().equals(orderID)) {
+				return order;
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public String toString() {
+		Map<String, Object> json = new TreeMap<String, Object>();
+		json.put("pair", pair);
+		json.put("orders", buyOrders);
+		return getGson().toJson(json);
+	}
+}
+
+class Order {
+	
+	private String ID;
+	private String traderID;
+	private String assetID;
+	private Double amount;
+	private String exchangeAssetID;
+	private Double exchangePriceAssetAmount;
+	
+	public Order(String traderID, String assetID, Double amount, String exchangeAssetID,
+			Double exchangePriceAssetAmount) {
+		ID = UUID.randomUUID().toString();
+		this.traderID = traderID;
+		this.assetID = assetID;
+		this.amount = amount;
+		this.exchangeAssetID = exchangeAssetID;
+		this.exchangePriceAssetAmount = exchangePriceAssetAmount;
+	}
+	
+	public String getTraderID() {
+		return traderID;
+	}
+	
+	public String getAssetID() {
+		return assetID;
+	}
+	
+	public Double getAmount() {
+		return amount;
+	}
+	
+	public String getExchangeAssetID() {
+		return exchangeAssetID;
+	}
+	
+	public Double getExchangePriceAssetAmount() {
+		return exchangePriceAssetAmount;
+	}
+	
+	public String getID() {
+		return ID;
+	}
+	
+	@Override
+	public String toString() {
+		Map<String, Object> json = new TreeMap<String, Object>();
+		json.put("ID", ID);
+		return getGson().toJson(json);
+	}
+	
+	public enum Type {
+		BUY, SELL
+	}
+}
+
 class OrderBook {
+	
+	private final Set<CurrencyPair> pairs;
+	
+	public OrderBook(CurrencyPair... currencyPairs) {
+		if (currencyPairs == null || currencyPairs.length == 0) {
+			throw new RuntimeException("ERROR: unable to create a orderbook without at least one CurrencyPair");
+		}
+		pairs = new TreeSet<>(Arrays.asList(currencyPairs));
+	}
 
 	public Order createOrder(String traderID, MyAsset amountAsset, MyAsset priceAsset, Type sell) {
 		return this.createOrder(traderID, amountAsset.getAsset().getID(), amountAsset.getBalance().doubleValue(), priceAsset.getAsset().getID(), priceAsset.getBalance().doubleValue(), Order.Type.SELL);
 	}
 
-	public Order createOrder(String traderID, String assetID, Double amount, String exchangePriceAssetID,
+	public Order createOrder(String traderID, String assetID, Double amount, String exchangeAssetID,
 			Double exchangePriceAssetAmount, Type sell) {
 		// TODO Auto-generated method stub
 		return null;
@@ -51,14 +226,11 @@ class OrderBook {
 		
 	}
 
-}
-
-class Order {
-
-	public enum Type {
-		BUY, SELL
+	public List<CurrencyPair> getCurrencyPair() {
+		return new ArrayList<>(pairs);
 	}
 }
+
 
 class Wallet {
 	
@@ -169,10 +341,12 @@ class Trader extends Account {
 		return super.getID();
 	}
 
-	public Order createOrder(final String assetID, final Double amount, final String exchangePriceAssetID,
-			final Double exchangePriceAssetAmount, final Order.Type type) {
+	public Order createOrder(final String assetID, final Double amount, final String exchangeAssetID,
+			final Double exchangePriceAssetAmount) {
 		
-		return orderbook.createOrder(getID(), assetID, amount, exchangePriceAssetID, exchangePriceAssetAmount, type);
+		//TODO: here a need to figure out how to create a sell//buy CurrenryPair Order and add it to the orderbook 
+		
+		return null;//orderbook.createOrder(getID(), assetID, amount, exchangeAssetID, exchangePriceAssetAmount, type);
 	}
 }
 
@@ -200,32 +374,6 @@ class Account {
 	
 	public String getID() {
 		return ID;
-	}
-}
-
-class MockOriginAccountGOLD extends Account {
-	
-	public static final Double INITIAL_BALANCE = 500.0;
-	
-	MockOriginAccountGOLD(Asset assetGOLD) {
-		super();
-		MyAsset myGOLD = new MyAsset(assetGOLD);
-		ReflectionTestUtils.setField(myGOLD, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));
-		Set<MyAsset> assets = new HashSet<>(Arrays.asList(myGOLD));
-		ReflectionTestUtils.setField(getWallet(), "assets", assets);
-	}
-}
-
-class MockOriginAccountUSD extends Account {
-	
-	public static final Double INITIAL_BALANCE = 500.0;
-	
-	MockOriginAccountUSD(Asset assetGOLD) {
-		super();
-		MyAsset myUSD = new MyAsset(assetGOLD);
-		ReflectionTestUtils.setField(myUSD, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));
-		Set<MyAsset> assets = new HashSet<>(Arrays.asList(myUSD));
-		ReflectionTestUtils.setField(getWallet(), "assets", assets);
 	}
 }
 
@@ -288,60 +436,84 @@ class MyAsset {
 	}
 }
 
-
-
+class MockOriginAccount extends Account {
+	
+	public static final Double INITIAL_BALANCE = 500.0;
+	
+	MockOriginAccount(Asset asset) {
+		super();
+		MyAsset myAsset = new MyAsset(asset);
+		ReflectionTestUtils.setField(myAsset, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));
+		Set<MyAsset> assets = new HashSet<>(Arrays.asList(myAsset));
+		ReflectionTestUtils.setField(getWallet(), "assets", assets);
+	}
+}
 
 public class TestOrderBook {
 	
+	private static final Asset BRONZE = new Asset("BRONZE");
+	private static final Asset SILVER = new Asset("SILVER");
 	private static final Asset GOLD = new Asset("GOLD");
 	private static final Asset USD = new Asset("USD");
+	
+	// {BASE CURRENCY == AMOUNT}/{QUOTE CURRENCY == price} 
+	private static final String GOLDxUSD = "GOLD/USD"; 
+	private static final String GOLDxSILVER = "GOLD/SILVER"; 
+	private static final String BRONZExSILVER = "BRONZE/SILVER"; 
 	
 	@Test
 	public void testSellAndBuyViaOrderBook() {
 		String error1Message = "ERROR: Asset not found. Did you performed an add funds transaction before used it?";
-		final Double usdValue = 12.0;
-		final Double goldValue = 1.0;
-		MockOriginAccountUSD mockOriginAccountUSD = new MockOriginAccountUSD(USD);
-		MockOriginAccountGOLD mockOriginAccountGOLD = new MockOriginAccountGOLD(GOLD);
+		
+		final Double usdAmount = 49.99;
+		final Double goldAmount = 4.11;
+		final Double silverAmount = 43.44;
+		final Double bronzeAmount = 157.33;
+		
+		MockOriginAccount mockOriginAccountUSD = new MockOriginAccount(USD);
+		MockOriginAccount mockOriginAccountGOLD = new MockOriginAccount(GOLD);
+		MockOriginAccount mockOriginAccountSILVER = new MockOriginAccount(SILVER);
+		MockOriginAccount mockOriginAccountBRONZE = new MockOriginAccount(BRONZE);
+		
 		OrderBook orderbook = new OrderBook();
+		
 		Trader thiago = new Trader("Thiago", orderbook);
 		Trader renata = new Trader("Renata", orderbook);
+		Trader maria = new Trader("Maria", orderbook);
+		Trader alice = new Trader("Alice", orderbook);
 		
 		
-		mockOriginAccountGOLD.getWallet().transfer(GOLD, goldValue, renata);
-
-		
+		mockOriginAccountGOLD.getWallet().transfer(GOLD, goldAmount, renata);
 		String rTraderID = renata.getID();
 		assertNotNull(rTraderID);
 		assertTrue(!rTraderID.trim().isEmpty());
 		String rAssetID = renata.getWallet().getAsset(GOLD).getAsset().getID();
 		assertNotNull(rAssetID);
 		assertTrue(!rAssetID.trim().isEmpty());
-		Double rAmount = renata.getWallet().getAsset(GOLD).getBalance().doubleValue(); // 1
-		String rExchangePriceAssetID = USD.getID(); 
-		Double rExchangePriceAssetAmount = usdValue;
-		Order bidOrder = orderbook.createOrder(rTraderID, rAssetID, rAmount, rExchangePriceAssetID, rExchangePriceAssetAmount, Order.Type.SELL);
+		Double rAmount = renata.getWallet().getAsset(GOLD).getBalance().doubleValue(); // 4.11
+		String rExchangeAssetID = USD.getID(); 
+		Double rExchangePriceAssetAmount = usdAmount;
+		Order bidOrder = renata.createOrder(rAssetID, rAmount, rExchangeAssetID, rExchangePriceAssetAmount);
 		assertNotNull(error1Message, renata.getWallet().getAsset(GOLD).getAsset());
-		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldValue)));
+		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldAmount)));
 		assertEquals(null, renata.getWallet().getAsset(USD));
 		
-		mockOriginAccountUSD.getWallet().transfer(USD, usdValue, thiago);
-		
-		
+		mockOriginAccountUSD.getWallet().transfer(USD, usdAmount, thiago);
 		String tTraderID = thiago.getID();
 		assertNotNull(tTraderID);
 		assertTrue(!tTraderID.trim().isEmpty());
 		String tAssetID = thiago.getWallet().getAsset(USD).getAsset().getID();
 		assertNotNull(tAssetID);
 		assertTrue(!tAssetID.trim().isEmpty());
-		Double tAmount = thiago.getWallet().getAsset(USD).getBalance().doubleValue(); //12
-		String tExchangePriceAssetID = GOLD.getID(); 
-		Double tExchangePriceAssetAmount = goldValue;
-		Order askOrder = orderbook.createOrder(tTraderID, tAssetID, tAmount, tExchangePriceAssetID, tExchangePriceAssetAmount, Order.Type.BUY);
+		Double tAmount = thiago.getWallet().getAsset(USD).getBalance().doubleValue(); // 49.99
+		String tExchangeAssetID = GOLD.getID(); 
+		Double tExchangePriceAssetAmount = goldAmount;
+		Order askOrder = thiago.createOrder(tAssetID, tAmount, tExchangeAssetID, tExchangePriceAssetAmount);
 		assertNotNull(error1Message, thiago.getWallet().getAsset(USD).getAsset());
-		assertEquals(0, thiago.getWallet().getAsset(USD).getBalance().compareTo(BigDecimal.valueOf(usdValue)));
+		assertEquals(0, thiago.getWallet().getAsset(USD).getBalance().compareTo(BigDecimal.valueOf(usdAmount)));
 		assertEquals(null, thiago.getWallet().getAsset(GOLD));
-				
+		
+		// TODO: Add Maria and Alice assets here.
 		
 		
 		assertNotNull("BID should not be null", orderbook.getBidOrder());
@@ -354,20 +526,26 @@ public class TestOrderBook {
 		/*
 		 * FROM Investopedia1s website:
 		 * 
-		 * "The bid (buy price) represents how much of the quote currency you need to get one unit 
-		 * of the base currency. Conversely, when you sell the currency pair, you sell the base 
-		 * currency and receive the quote currency. The ask (sell price) for the currency pair 
-		 * represents how much you will get in the quote currency for selling one unit of base 
-		 * currency."
+		 * "All forex trades involve the simultaneous purchase of one currency 
+		 * and sale of another, but the currency pair itself can be thought of 
+		 * as a single unit — an instrument that is bought or sold. If you buy 
+		 * a currency pair, you buy the base currency and implicitly sell the 
+		 * quoted currency. The bid (buy price) represents how much of the 
+		 * quote currency you need to get one unit of the base currency. 
+		 * 
+		 * Conversely, when you sell the currency pair, you sell the base 
+		 * currency and receive the quote currency. The ask (sell price) for 
+		 * the currency pair represents how much you will get in the quote 
+		 * currency for selling one unit of base currency."
 		 */
 		orderbook.performMatcher();
 		
 		
 		
 		assertEquals(BigDecimal.ZERO, renata.getWallet().getAsset(GOLD).getBalance());
-		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(new BigDecimal(usdValue)));
+		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(new BigDecimal(usdAmount)));
 		
 		assertEquals(BigDecimal.ZERO, renata.getWallet().getAsset(USD).getBalance());
-		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(new BigDecimal(goldValue)));
+		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(new BigDecimal(goldAmount)));
 	}
 }

@@ -11,15 +11,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.rubyit.metaltrade.obj.Asset;
 
-public class MockOriginAccountUSD extends Account {
+public class MockOriginAccount extends Account {
 	
 	public static final Double INITIAL_BALANCE = 500.0;
 	
-	public MockOriginAccountUSD(Asset assetGOLD) {
+	public MockOriginAccount(Asset asset) {
 		super();
-		MyAsset myUSD = new MyAsset(assetGOLD);
-		ReflectionTestUtils.setField(myUSD, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));
-		Set<MyAsset> assets = new HashSet<>(Arrays.asList(myUSD));
+		MyAsset myAsset = new MyAsset(asset);
+		ReflectionTestUtils.setField(myAsset, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));
+		Set<MyAsset> assets = new HashSet<>(Arrays.asList(myAsset));
 		ReflectionTestUtils.setField(getWallet(), "assets", assets);
 	}
 }
