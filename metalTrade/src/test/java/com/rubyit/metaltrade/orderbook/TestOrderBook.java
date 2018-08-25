@@ -80,6 +80,13 @@ class CurrencyPair {
 		sellOrders = new TreeSet<>();
 	}
 	
+	CurrencyPair(CurrencyPair pair) {
+		ID = pair.ID;
+		this.pair = pair.pair;
+		buyOrders = pair.buyOrders;
+		sellOrders = pair.sellOrders;
+	}
+	
 	/*
 	 *  "an instrument that is bought or sold. If you buy a currency pair, you 
 	 *  buy the base currency and implicitly sell the quoted currency."
@@ -150,7 +157,7 @@ class CurrencyPair {
 	}
 }
 
-class Order {
+class Order implements Comparable<Order> {
 	
 	private String ID;
 	private String traderID;
@@ -218,8 +225,10 @@ class Order {
 		return getGson().toJson(json);
 	}
 	
-	public enum Type {
-		BUY, SELL
+	@Override
+	public int compareTo(Order other) {
+		
+		return exchangeAssetAmount.compareTo(other.exchangeAssetAmount);
 	}
 }
 
@@ -240,7 +249,7 @@ class OrderBook {
 		pairNotFoundCondition = pairChangeLock.newCondition();
 	}
 
-	public void updatePairOrders(CurrencyPair pair) throws InterruptedException { //TODO: add concurrency trait to this method
+	public void updatePairOrders(CurrencyPair pair) throws InterruptedException {
 		
 		pairChangeLock.lock();
 		try {
@@ -249,6 +258,7 @@ class OrderBook {
 					pairs.remove(currencyPair);
 					pairs.add(pair);
 					pairNotFoundCondition.signalAll();
+					pairChangeLock.unlock();
 					return;
 				} else {
 					pairNotFoundCondition.wait();
@@ -262,7 +272,7 @@ class OrderBook {
 				+ "invalid pair: {pair=" + pair + "}");
 	}
 	
-	public CurrencyPair findCurrencyPairBy(String assetID) { //TODO: add concurrency trait to this method
+	public CurrencyPair findCurrencyPairBy(String assetID) {
 		
 		pairChangeLock.lock();
 		try {
@@ -270,10 +280,29 @@ class OrderBook {
 				String amountAssetID = currencyPair.getPair().getAmountAsset().getID();
 				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
 				if (amountAssetID.equals(assetID)) {
-					return currencyPair;
+					return new CurrencyPair(currencyPair);
 				}
 				if (priceAssetID.equals(assetID)) {
-					return currencyPair;
+					return new CurrencyPair(currencyPair);
+				}
+			}
+		} finally {
+			pairChangeLock.unlock();
+			
+		}
+		
+		return null;
+	}
+	
+	public CurrencyPair findCurrencyPairBy(String assetID, String exchangeAssetID) {
+		
+		pairChangeLock.lock();
+		try {
+			for (CurrencyPair currencyPair : pairs) {
+				String amountAssetID = currencyPair.getPair().getAmountAsset().getID();
+				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
+				if ((amountAssetID.equals(assetID)) && (priceAssetID.equals(exchangeAssetID))) {
+					return new CurrencyPair(currencyPair);
 				}
 			}
 		} finally {
@@ -418,10 +447,15 @@ class Trader extends Account {
 			final Double exchangeAssetAmount) {
 		
 		CurrencyPair pair = null;
-		for (String id : Arrays.asList(assetID, exchangeAssetID)) {
-			pair = orderbook.findCurrencyPairBy(id);
-			if (pair != null) {
-				break;
+		pair = orderbook.findCurrencyPairBy(assetID, exchangeAssetID);
+
+		if (pair == null) {
+			
+			for (String id : Arrays.asList(assetID, exchangeAssetID)) {
+				pair = orderbook.findCurrencyPairBy(id);
+				if (pair != null) {
+					break;
+				}
 			}
 		}
 		if (pair == null) {
@@ -436,7 +470,7 @@ class Trader extends Account {
 		try {
 			orderbook.updatePairOrders(pair);
 		} catch (InterruptedException e) {
-			throw new RuntimeException("ERROR: update pair{" + pair + "} orders", e);
+			throw new RuntimeException("ERROR: update pair {" + pair + "} orders", e);
 		}
 		
 		return order;
