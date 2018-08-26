@@ -92,8 +92,8 @@ class CurrencyPair {
 	 *  buy the base currency and implicitly sell the quoted currency."
 	 */
 	public void addOrder(Order order) {
-		String assetID = order.getAssetID();
-		String exchangeAssetID = order.getExchangeAssetID();
+		String assetID = order.getAsset().getID();
+		String exchangeAssetID = order.getExchangeAsset().getID();
 		String amountAssetID = pair.getAmountAsset().getID();
 		String priceAssetID = pair.getPriceAsset().getID();
 		if (
@@ -161,31 +161,27 @@ class Order implements Comparable<Order> {
 	
 	private String ID;
 	private String traderID;
-	private String assetID;
+	private Asset asset;
 	private Double amount;
-	private String exchangeAssetID;
+	private Asset exchangeAsset;
 	private Double exchangeAssetAmount;
 	
-	public Order(String traderID, String assetID, Double amount, String exchangeAssetID,
+	public Order(String traderID, Asset asset, Double amount, Asset exchangeAsset,
 			Double exchangeAssetAmount) {
 		if (
 				(traderID == null || traderID.trim().isEmpty())
-				|| (assetID == null || assetID.trim().isEmpty())
 				|| (amount == null)
-				|| (exchangeAssetID == null || exchangeAssetID.isEmpty())
 				|| (exchangeAssetAmount == null)
 			) {
 			throw new RuntimeException("ERROR: unable to create a order with "
-					+ "invalid fields: {traderID=" + traderID + ", assetID="
-					+ assetID + ", amount=" + amount+ ", exchangeAssetID="
-					+ exchangeAssetID + ", exchangeAssetAmount="
-					+ exchangeAssetAmount + "}") ;
+					+ "invalid fields: {traderID=" + traderID + ", amount=" 
+					+ amount+ ", exchangeAssetAmount=" + exchangeAssetAmount + "}") ;
 		}
 		ID = UUID.randomUUID().toString();
 		this.traderID = traderID;
-		this.assetID = assetID;
+		this.asset = asset;
 		this.amount = amount;
-		this.exchangeAssetID = exchangeAssetID;
+		this.exchangeAsset = exchangeAsset;
 		this.exchangeAssetAmount = exchangeAssetAmount;
 	}
 	
@@ -193,16 +189,16 @@ class Order implements Comparable<Order> {
 		return traderID;
 	}
 	
-	public String getAssetID() {
-		return assetID;
+	public Asset getAsset() {
+		return asset;
 	}
 	
 	public Double getAmount() {
 		return amount;
 	}
 	
-	public String getExchangeAssetID() {
-		return exchangeAssetID;
+	public Asset getExchangeAsset() {
+		return exchangeAsset;
 	}
 	
 	public Double getExchangeAssetAmount() {
@@ -218,9 +214,9 @@ class Order implements Comparable<Order> {
 		Map<String, Object> json = new TreeMap<String, Object>();
 		json.put("ID", ID);
 		json.put("traderID", traderID);
-		json.put("assetID", assetID);
+		json.put("asset", asset);
 		json.put("amount", amount);
-		json.put("exchangeAssetID", exchangeAssetID);
+		json.put("exchangeAsset", exchangeAsset);
 		json.put("exchangeAssetAmount", exchangeAssetAmount);
 		return getGson().toJson(json);
 	}
@@ -249,27 +245,43 @@ class OrderBook {
 		pairNotFoundCondition = pairChangeLock.newCondition();
 	}
 
-	public void updatePairOrders(CurrencyPair pair) throws InterruptedException {
+	/*
+	void withdraw(BigDecimal amount) throws InterruptedException {
+		balanceChangeLock.lock();
+		try {
+			while (balance.compareTo(amount) < 0) {
+				sufficientFundsCondition.await();
+			}
+			System.out.print("Withdrawing " + amount);
+			BigDecimal newBalance = balance.subtract(amount);;
+			System.out.println(", new balance is " + newBalance);
+			balance = newBalance;
+		} finally {
+			balanceChangeLock.unlock();
+		}
+	}
+	 */
+	public void updatePairOrders(final CurrencyPair pair) throws InterruptedException {
+		
+		CurrencyPair currencyPairOther = null;
+		for (CurrencyPair currencyPair : pairs) {
+			if (currencyPair.getID().equals(pair.getID())) {
+				currencyPairOther = currencyPair;
+			}
+		}
+		if (currencyPairOther == null) {
+			throw new RuntimeException("ERROR: unable to update pair orders with an "
+					+ "invalid pair: {pair=" + pair + "}");
+		}
 		
 		pairChangeLock.lock();
 		try {
-			for (CurrencyPair currencyPair : pairs) {
-				if (currencyPair.getID().equals(pair.getID())) {
-					pairs.remove(currencyPair);
-					pairs.add(pair);
-					pairNotFoundCondition.signalAll();
-					pairChangeLock.unlock();
-					return;
-				} else {
-					pairNotFoundCondition.wait();
-				}
-			}
+			pairs.remove(currencyPairOther);
+			pairs.add(pair);
 		} finally {
 			pairChangeLock.unlock();
 		}
 		
-		throw new RuntimeException("ERROR: unable to update pair orders with an "
-				+ "invalid pair: {pair=" + pair + "}");
 	}
 	
 	public CurrencyPair findCurrencyPairBy(String assetID) {
@@ -280,10 +292,10 @@ class OrderBook {
 				String amountAssetID = currencyPair.getPair().getAmountAsset().getID();
 				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
 				if (amountAssetID.equals(assetID)) {
-					return new CurrencyPair(currencyPair);
+					return currencyPair;//new CurrencyPair(currencyPair);
 				}
 				if (priceAssetID.equals(assetID)) {
-					return new CurrencyPair(currencyPair);
+					return currencyPair;//new CurrencyPair(currencyPair);
 				}
 			}
 		} finally {
@@ -443,15 +455,15 @@ class Trader extends Account {
 		return super.getID();
 	}
 
-	public Order createOrder(final String assetID, final Double amount, final String exchangeAssetID,
+	public Order createOrder(final Asset asset, final Double amount, final Asset exchangeAsset,
 			final Double exchangeAssetAmount) {
 		
 		CurrencyPair pair = null;
-		pair = orderbook.findCurrencyPairBy(assetID, exchangeAssetID);
+		pair = orderbook.findCurrencyPairBy(asset.getID(), exchangeAsset.getID());
 
 		if (pair == null) {
 			
-			for (String id : Arrays.asList(assetID, exchangeAssetID)) {
+			for (String id : Arrays.asList(asset.getID(), exchangeAsset.getID())) {
 				pair = orderbook.findCurrencyPairBy(id);
 				if (pair != null) {
 					break;
@@ -460,11 +472,11 @@ class Trader extends Account {
 		}
 		if (pair == null) {
 			throw new RuntimeException("ERROR: unable to find on the orderbook a "
-					+ "compatible CurrencyPair for Assets with {assetID=" + assetID + 
-					", exchangeAssetID=" + exchangeAssetID + "}");
+					+ "compatible CurrencyPair for Assets with {asset=" + asset + 
+					", exchangeAsset=" + exchangeAsset + "}");
 		}
 		
-		Order order = new Order(getID(), assetID, amount, exchangeAssetID, exchangeAssetAmount);
+		Order order = new Order(getID(), asset, amount, exchangeAsset, exchangeAssetAmount);
 		pair.addOrder(order);
 		
 		try {
@@ -614,13 +626,11 @@ public class TestOrderBook {
 		String rTraderID = renata.getID();
 		assertNotNull(rTraderID);
 		assertTrue(!rTraderID.trim().isEmpty());
-		String rAssetID = renata.getWallet().getAsset(GOLD).getAsset().getID();
-		assertNotNull(rAssetID);
-		assertTrue(!rAssetID.trim().isEmpty());
+		Asset rAsset = renata.getWallet().getAsset(GOLD).getAsset();
 		Double rAmount = renata.getWallet().getAsset(GOLD).getBalance().doubleValue(); // 4.11
-		String rExchangeAssetID = USD.getID(); 
+		Asset rExchangeAssetID = USD; 
 		Double rExchangeAssetAmount = usdAmount;
-		Order bidOrder = renata.createOrder(rAssetID, rAmount, rExchangeAssetID, rExchangeAssetAmount);
+		Order bidOrder = renata.createOrder(rAsset, rAmount, rExchangeAssetID, rExchangeAssetAmount);
 		assertNotNull(error1Message, renata.getWallet().getAsset(GOLD).getAsset());
 		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldAmount)));
 		assertEquals(null, renata.getWallet().getAsset(USD));
@@ -629,28 +639,24 @@ public class TestOrderBook {
 		String tTraderID = thiago.getID();
 		assertNotNull(tTraderID);
 		assertTrue(!tTraderID.trim().isEmpty());
-		String tAssetID = thiago.getWallet().getAsset(USD).getAsset().getID();
-		assertNotNull(tAssetID);
-		assertTrue(!tAssetID.trim().isEmpty());
+		Asset tAsset = thiago.getWallet().getAsset(USD).getAsset();
 		Double tAmount = thiago.getWallet().getAsset(USD).getBalance().doubleValue(); // 49.99
-		String tExchangeAssetID = GOLD.getID(); 
+		Asset tExchangeAsset = GOLD; 
 		Double tExchangeAssetAmount = goldAmount;
-		Order askOrder = thiago.createOrder(tAssetID, tAmount, tExchangeAssetID, tExchangeAssetAmount);
+		Order askOrder = thiago.createOrder(tAsset, tAmount, tExchangeAsset, tExchangeAssetAmount);
 		assertNotNull(error1Message, thiago.getWallet().getAsset(USD).getAsset());
 		assertEquals(0, thiago.getWallet().getAsset(USD).getBalance().compareTo(BigDecimal.valueOf(usdAmount)));
 		assertEquals(null, thiago.getWallet().getAsset(GOLD));
 		
 		mockOriginAccountBRONZE.getWallet().transfer(BRONZE, bronzeAmount, maria);
-		String mTraderID = thiago.getID();
+		String mTraderID = maria.getID();
 		assertNotNull(mTraderID);
 		assertTrue(!mTraderID.trim().isEmpty());
-		String mAssetID = maria.getWallet().getAsset(BRONZE).getAsset().getID();
-		assertNotNull(mAssetID);
-		assertTrue(!mAssetID.trim().isEmpty());
-		Double mAmount = thiago.getWallet().getAsset(BRONZE).getBalance().doubleValue(); // 157.33
-		String mExchangeAssetID = BRONZE.getID(); 
+		Asset mAsset = maria.getWallet().getAsset(BRONZE).getAsset();
+		Double mAmount = maria.getWallet().getAsset(BRONZE).getBalance().doubleValue(); // 157.33
+		Asset mExchangeAsset = SILVER; 
 		Double mExchangeAssetAmount = bronzeAmount;
-		Order mOrder = maria.createOrder(mAssetID, mAmount, mExchangeAssetID, mExchangeAssetAmount);
+		Order mOrder = maria.createOrder(mAsset, mAmount, mExchangeAsset, mExchangeAssetAmount);
 		assertNotNull(error1Message, maria.getWallet().getAsset(BRONZE).getAsset());
 		assertEquals(0, maria.getWallet().getAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(bronzeAmount)));
 		assertEquals(null, maria.getWallet().getAsset(SILVER));
@@ -659,13 +665,11 @@ public class TestOrderBook {
 		String aTraderID = alice.getID();
 		assertNotNull(aTraderID);
 		assertTrue(!aTraderID.trim().isEmpty());
-		String aAssetID = alice.getWallet().getAsset(SILVER).getAsset().getID();
-		assertNotNull(aAssetID);
-		assertTrue(!aAssetID.trim().isEmpty());
+		Asset aAsset = alice.getWallet().getAsset(SILVER).getAsset();
 		Double aAmount = alice.getWallet().getAsset(SILVER).getBalance().doubleValue(); // 43.44
-		String aExchangeAssetID = SILVER.getID(); 
+		Asset aExchangeAsset = BRONZE; 
 		Double aExchangeAssetAmount = silverAmount;
-		Order aOrder = alice.createOrder(aAssetID, aAmount, aExchangeAssetID, aExchangeAssetAmount);
+		Order aOrder = alice.createOrder(aAsset, aAmount, aExchangeAsset, aExchangeAssetAmount);
 		assertNotNull(error1Message, alice.getWallet().getAsset(SILVER).getAsset());
 		assertEquals(0, alice.getWallet().getAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(silverAmount)));
 		assertEquals(null, alice.getWallet().getAsset(BRONZE));
