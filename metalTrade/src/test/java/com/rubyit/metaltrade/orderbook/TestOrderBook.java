@@ -49,7 +49,7 @@ class Pair {
 		return priceAsset;
 	}
 
-	public String getCurrencyPair() {
+	public String getCurrencyPairName() {
 		return currencyPair;
 	}
 
@@ -154,6 +154,14 @@ class CurrencyPair {
 		json.put("buyOrders", buyOrders);
 		json.put("sellOrders", sellOrders);
 		return getGson().toJson(json);
+	}
+
+	public List<Order> getBidOrders() {
+		return new ArrayList<Order>(buyOrders);
+	}
+	
+	public List<Order> getAskOrders() {
+		return new ArrayList<Order>(sellOrders);
 	}
 }
 
@@ -306,15 +314,14 @@ class OrderBook {
 		return null;
 	}
 	
-	public CurrencyPair findCurrencyPairBy(String assetID, String exchangeAssetID) {
+	public CurrencyPair findCurrencyPairBy(String currencyPairName, Object obj) {
 		
 		pairChangeLock.lock();
 		try {
 			for (CurrencyPair currencyPair : pairs) {
-				String amountAssetID = currencyPair.getPair().getAmountAsset().getID();
-				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
-				if ((amountAssetID.equals(assetID)) && (priceAssetID.equals(exchangeAssetID))) {
-					return new CurrencyPair(currencyPair);
+				String pairName = currencyPair.getPair().getCurrencyPairName();
+				if (currencyPairName.equals(pairName)) {
+					return currencyPair;
 				}
 			}
 		} finally {
@@ -325,23 +332,61 @@ class OrderBook {
 		return null;
 	}
 	
-	public Object getBidOrder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public Object getAskOrder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public void performMatcher() {
-		// TODO Auto-generated method stub
+	public CurrencyPair findCurrencyPairBy(String assetID, String exchangeAssetID) {
 		
+		pairChangeLock.lock();
+		try {
+			for (CurrencyPair currencyPair : pairs) {
+				String amountAssetID = currencyPair.getPair().getAmountAsset().getID();
+				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
+				if ((amountAssetID.equals(assetID)) && (priceAssetID.equals(exchangeAssetID))) {
+					return currencyPair;//new CurrencyPair(currencyPair);
+				}/*
+				if ((priceAssetID.equals(assetID)) && (amountAssetID.equals(exchangeAssetID))) {
+					return currencyPair;//new CurrencyPair(currencyPair);
+				}*/
+			}
+		} finally {
+			pairChangeLock.unlock();
+			
+		}
+		
+		return null;
+	}
+	
+	public Order getBidOrder(Pair pair) {
+		CurrencyPair cPair = findCurrencyPairBy(pair.getCurrencyPairName());
+		List<Order> orders = (cPair == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getBidOrders();
+		return (orders == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getBidOrders().get(0);
+	}
+	
+	public Order getAskOrder(Pair pair) {
+		CurrencyPair cPair = findCurrencyPairBy(pair.getCurrencyPairName());
+		List<Order> orders = (cPair == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getAskOrders();
+		return (orders == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getAskOrders().get(0);
+	}
+	
+	public List<Order> getSellOrders(Pair pair) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public List<Order> getBuyOrders(Pair pair) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public List<CurrencyPair> getCurrencyPair() {
+	public List<CurrencyPair> getAllCurrencyPairs() {
 		return new ArrayList<>(pairs);
+	}
+	
+	public List<CurrencyPair> getCurrencyPairs(Pair pair) {
+		return new ArrayList<>(pairs);
+	}
+	
+	public void performMatcher(Pair pair) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 
@@ -655,7 +700,7 @@ public class TestOrderBook {
 		Asset mAsset = maria.getWallet().getAsset(BRONZE).getAsset();
 		Double mAmount = maria.getWallet().getAsset(BRONZE).getBalance().doubleValue(); // 157.33
 		Asset mExchangeAsset = SILVER; 
-		Double mExchangeAssetAmount = bronzeAmount;
+		Double mExchangeAssetAmount = silverAmount;
 		Order mOrder = maria.createOrder(mAsset, mAmount, mExchangeAsset, mExchangeAssetAmount);
 		assertNotNull(error1Message, maria.getWallet().getAsset(BRONZE).getAsset());
 		assertEquals(0, maria.getWallet().getAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(bronzeAmount)));
@@ -668,36 +713,36 @@ public class TestOrderBook {
 		Asset aAsset = alice.getWallet().getAsset(SILVER).getAsset();
 		Double aAmount = alice.getWallet().getAsset(SILVER).getBalance().doubleValue(); // 43.44
 		Asset aExchangeAsset = BRONZE; 
-		Double aExchangeAssetAmount = silverAmount;
+		Double aExchangeAssetAmount = bronzeAmount;
 		Order aOrder = alice.createOrder(aAsset, aAmount, aExchangeAsset, aExchangeAssetAmount);
 		assertNotNull(error1Message, alice.getWallet().getAsset(SILVER).getAsset());
 		assertEquals(0, alice.getWallet().getAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(silverAmount)));
 		assertEquals(null, alice.getWallet().getAsset(BRONZE));
 		
-		
-		assertNotNull("BID should not be null", orderbook.getBidOrder());
-		assertNotNull("ASK should not be null", orderbook.getAskOrder());
-		assertEquals(bidOrder, orderbook.getBidOrder());
-		assertEquals(askOrder, orderbook.getAskOrder());
-		
-		
-		
 		/*
-		 * FROM Investopedia1s website:
-		 * 
-		 * "All forex trades involve the simultaneous purchase of one currency 
-		 * and sale of another, but the currency pair itself can be thought of 
-		 * as a single unit — an instrument that is bought or sold. If you buy 
-		 * a currency pair, you buy the base currency and implicitly sell the 
-		 * quoted currency. The bid (buy price) represents how much of the 
-		 * quote currency you need to get one unit of the base currency. 
-		 * 
-		 * Conversely, when you sell the currency pair, you sell the base 
-		 * currency and receive the quote currency. The ask (sell price) for 
-		 * the currency pair represents how much you will get in the quote 
-		 * currency for selling one unit of base currency."
+		private static final Pair GOLDxUSD = new Pair(GOLD, USD);//"GOLD/USD" 
+		private static final Pair GOLDxSILVER = new Pair(GOLD, SILVER);//"GOLD/SILVER" 
+		private static final Pair BRONZExSILVER = new Pair(BRONZE, SILVER);//"BRONZE/SILVER" 
 		 */
-		orderbook.performMatcher();
+		assertNotNull("BID should not be null", orderbook.getBidOrder(GOLDxUSD));
+		assertNotNull("ASK should not be null", orderbook.getAskOrder(GOLDxUSD));
+		assertEquals(bidOrder, orderbook.getBidOrder(GOLDxUSD));
+		assertEquals(askOrder, orderbook.getAskOrder(GOLDxUSD));
+		
+		assertNotNull("BID should not be null", orderbook.getBidOrder(GOLDxSILVER));
+		assertNotNull("ASK should not be null", orderbook.getAskOrder(GOLDxSILVER));
+		assertEquals(bidOrder, orderbook.getBidOrder(GOLDxSILVER));
+		assertEquals(askOrder, orderbook.getAskOrder(GOLDxSILVER));
+		
+		assertNotNull("BID should not be null", orderbook.getBidOrder(BRONZExSILVER));
+		assertNotNull("ASK should not be null", orderbook.getAskOrder(BRONZExSILVER));
+		assertEquals(bidOrder, orderbook.getBidOrder(BRONZExSILVER));
+		assertEquals(askOrder, orderbook.getAskOrder(BRONZExSILVER));
+		
+		
+		orderbook.performMatcher(GOLDxUSD);
+		orderbook.performMatcher(GOLDxSILVER);
+		orderbook.performMatcher(BRONZExSILVER);
 		
 		
 		
