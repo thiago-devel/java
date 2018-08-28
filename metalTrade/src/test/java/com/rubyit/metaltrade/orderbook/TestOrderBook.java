@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -114,13 +115,21 @@ class CurrencyPair {
 		
 		throw new RuntimeException("ERROR: that order {order=" + order + "} doesn't belongs to that pair {" + pair + "}");
 	}
-	
-	public List<Order> getBuyOrders() {
-		return new ArrayList<>(buyOrders); // TODO: to order by value before return
+	/*
+	public List<Order> getBidOrders() {
+		return new ArrayList<Order>(buyOrders);
 	}
 	
-	public List<Order> getSellOrder() {
-		return new ArrayList<>(sellOrders); // TODO: to order by value before return
+	public List<Order> getAskOrders() {
+		return new ArrayList<Order>(sellOrders);
+	}
+	*/
+	public List<Order> getBuyOrders() {
+		return new ArrayList<Order>(buyOrders); // TODO: to order by value before return
+	}
+	
+	public List<Order> getSellOrders() {
+		return new ArrayList<Order>(sellOrders); // TODO: to order by value before return
 	}
 	
 	public Order getOrder(String orderID) {
@@ -154,14 +163,6 @@ class CurrencyPair {
 		json.put("buyOrders", buyOrders);
 		json.put("sellOrders", sellOrders);
 		return getGson().toJson(json);
-	}
-
-	public List<Order> getBidOrders() {
-		return new ArrayList<Order>(buyOrders);
-	}
-	
-	public List<Order> getAskOrders() {
-		return new ArrayList<Order>(sellOrders);
 	}
 }
 
@@ -253,22 +254,6 @@ class OrderBook {
 		pairNotFoundCondition = pairChangeLock.newCondition();
 	}
 
-	/*
-	void withdraw(BigDecimal amount) throws InterruptedException {
-		balanceChangeLock.lock();
-		try {
-			while (balance.compareTo(amount) < 0) {
-				sufficientFundsCondition.await();
-			}
-			System.out.print("Withdrawing " + amount);
-			BigDecimal newBalance = balance.subtract(amount);;
-			System.out.println(", new balance is " + newBalance);
-			balance = newBalance;
-		} finally {
-			balanceChangeLock.unlock();
-		}
-	}
-	 */
 	public void updatePairOrders(final CurrencyPair pair) throws InterruptedException {
 		
 		CurrencyPair currencyPairOther = null;
@@ -314,13 +299,13 @@ class OrderBook {
 		return null;
 	}
 	
-	public CurrencyPair findCurrencyPairBy(String currencyPairName, Object obj) {
+	public CurrencyPair findCurrencyPairBy(Optional<String> currencyPairName) {
 		
 		pairChangeLock.lock();
 		try {
 			for (CurrencyPair currencyPair : pairs) {
 				String pairName = currencyPair.getPair().getCurrencyPairName();
-				if (currencyPairName.equals(pairName)) {
+				if (currencyPairName.get().equals(pairName)) {
 					return currencyPair;
 				}
 			}
@@ -341,10 +326,10 @@ class OrderBook {
 				String priceAssetID = currencyPair.getPair().getPriceAsset().getID();
 				if ((amountAssetID.equals(assetID)) && (priceAssetID.equals(exchangeAssetID))) {
 					return currencyPair;//new CurrencyPair(currencyPair);
-				}/*
+				}
 				if ((priceAssetID.equals(assetID)) && (amountAssetID.equals(exchangeAssetID))) {
 					return currencyPair;//new CurrencyPair(currencyPair);
-				}*/
+				}
 			}
 		} finally {
 			pairChangeLock.unlock();
@@ -353,27 +338,28 @@ class OrderBook {
 		
 		return null;
 	}
-	
+	/*
 	public Order getBidOrder(Pair pair) {
-		CurrencyPair cPair = findCurrencyPairBy(pair.getCurrencyPairName());
-		List<Order> orders = (cPair == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getBidOrders();
-		return (orders == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getBidOrders().get(0);
+		CurrencyPair cPair = findCurrencyPairBy(Optional.of(pair.getCurrencyPairName()));
+		List<Order> orders = (cPair == null) ? null : cPair.getBidOrders();
+		return (orders == null) ? null : cPair.getBidOrders().get(0);
 	}
 	
 	public Order getAskOrder(Pair pair) {
-		CurrencyPair cPair = findCurrencyPairBy(pair.getCurrencyPairName());
-		List<Order> orders = (cPair == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getAskOrders();
-		return (orders == null) ? null : findCurrencyPairBy(pair.getCurrencyPairName()).getAskOrders().get(0);
+		CurrencyPair cPair = findCurrencyPairBy(Optional.of(pair.getCurrencyPairName()));
+		List<Order> orders = (cPair == null) ? null : cPair.getAskOrders();
+		return (orders == null) ? null : cPair.getAskOrders().get(0);
 	}
+	*/
 	
 	public List<Order> getSellOrders(Pair pair) {
-		// TODO Auto-generated method stub
-		return null;
+		CurrencyPair cPair = findCurrencyPairBy(Optional.of(pair.getCurrencyPairName()));
+		return (cPair == null) ? null : cPair.getSellOrders();
 	}
 	
 	public List<Order> getBuyOrders(Pair pair) {
-		// TODO Auto-generated method stub
-		return null;
+		CurrencyPair cPair = findCurrencyPairBy(Optional.of(pair.getCurrencyPairName()));
+		return (cPair == null) ? null : cPair.getBuyOrders();
 	}
 
 	public List<CurrencyPair> getAllCurrencyPairs() {
@@ -675,7 +661,7 @@ public class TestOrderBook {
 		Double rAmount = renata.getWallet().getAsset(GOLD).getBalance().doubleValue(); // 4.11
 		Asset rExchangeAssetID = USD; 
 		Double rExchangeAssetAmount = usdAmount;
-		Order bidOrder = renata.createOrder(rAsset, rAmount, rExchangeAssetID, rExchangeAssetAmount);
+		Order rOrder = renata.createOrder(rAsset, rAmount, rExchangeAssetID, rExchangeAssetAmount);
 		assertNotNull(error1Message, renata.getWallet().getAsset(GOLD).getAsset());
 		assertEquals(0, renata.getWallet().getAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldAmount)));
 		assertEquals(null, renata.getWallet().getAsset(USD));
@@ -688,7 +674,7 @@ public class TestOrderBook {
 		Double tAmount = thiago.getWallet().getAsset(USD).getBalance().doubleValue(); // 49.99
 		Asset tExchangeAsset = GOLD; 
 		Double tExchangeAssetAmount = goldAmount;
-		Order askOrder = thiago.createOrder(tAsset, tAmount, tExchangeAsset, tExchangeAssetAmount);
+		Order tOrder = thiago.createOrder(tAsset, tAmount, tExchangeAsset, tExchangeAssetAmount);
 		assertNotNull(error1Message, thiago.getWallet().getAsset(USD).getAsset());
 		assertEquals(0, thiago.getWallet().getAsset(USD).getBalance().compareTo(BigDecimal.valueOf(usdAmount)));
 		assertEquals(null, thiago.getWallet().getAsset(GOLD));
@@ -724,21 +710,22 @@ public class TestOrderBook {
 		private static final Pair GOLDxSILVER = new Pair(GOLD, SILVER);//"GOLD/SILVER" 
 		private static final Pair BRONZExSILVER = new Pair(BRONZE, SILVER);//"BRONZE/SILVER" 
 		 */
+		/*
 		assertNotNull("BID should not be null", orderbook.getBidOrder(GOLDxUSD));
 		assertNotNull("ASK should not be null", orderbook.getAskOrder(GOLDxUSD));
-		assertEquals(bidOrder, orderbook.getBidOrder(GOLDxUSD));
-		assertEquals(askOrder, orderbook.getAskOrder(GOLDxUSD));
+		assertEquals(rOrder, orderbook.getBidOrder(GOLDxUSD));
+		assertEquals(tOrder, orderbook.getAskOrder(GOLDxUSD));
 		
 		assertNotNull("BID should not be null", orderbook.getBidOrder(GOLDxSILVER));
 		assertNotNull("ASK should not be null", orderbook.getAskOrder(GOLDxSILVER));
-		assertEquals(bidOrder, orderbook.getBidOrder(GOLDxSILVER));
-		assertEquals(askOrder, orderbook.getAskOrder(GOLDxSILVER));
+		assertEquals(rOrder, orderbook.getBidOrder(GOLDxSILVER));
+		assertEquals(tOrder, orderbook.getAskOrder(GOLDxSILVER));
 		
 		assertNotNull("BID should not be null", orderbook.getBidOrder(BRONZExSILVER));
 		assertNotNull("ASK should not be null", orderbook.getAskOrder(BRONZExSILVER));
-		assertEquals(bidOrder, orderbook.getBidOrder(BRONZExSILVER));
-		assertEquals(askOrder, orderbook.getAskOrder(BRONZExSILVER));
-		
+		assertEquals(rOrder, orderbook.getBidOrder(BRONZExSILVER));
+		assertEquals(tOrder, orderbook.getAskOrder(BRONZExSILVER));
+		*/
 		
 		orderbook.performMatcher(GOLDxUSD);
 		orderbook.performMatcher(GOLDxSILVER);
