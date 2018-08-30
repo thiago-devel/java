@@ -174,9 +174,11 @@ class Order implements Comparable<Order> {
 	private Double amount;
 	private Asset exchangeAsset;
 	private Double exchangeAssetAmount;
+	private Pair pair;
+	private Type type;
 	
 	public Order(String traderID, Asset asset, Double amount, Asset exchangeAsset,
-			Double exchangeAssetAmount) {
+			Double exchangeAssetAmount, Pair pair) {
 		if (
 				(traderID == null || traderID.trim().isEmpty())
 				|| (amount == null)
@@ -184,7 +186,8 @@ class Order implements Comparable<Order> {
 			) {
 			throw new RuntimeException("ERROR: unable to create a order with "
 					+ "invalid fields: {traderID=" + traderID + ", amount=" 
-					+ amount+ ", exchangeAssetAmount=" + exchangeAssetAmount + "}") ;
+					+ amount+ ", exchangeAssetAmount=" + exchangeAssetAmount 
+					+ ", pair=" + pair + "}") ;
 		}
 		ID = UUID.randomUUID().toString();
 		this.traderID = traderID;
@@ -192,6 +195,7 @@ class Order implements Comparable<Order> {
 		this.amount = amount;
 		this.exchangeAsset = exchangeAsset;
 		this.exchangeAssetAmount = exchangeAssetAmount;
+		this.pair = pair;
 	}
 	
 	public String getTraderID() {
@@ -218,10 +222,26 @@ class Order implements Comparable<Order> {
 		return ID;
 	}
 	
+	public Pair getPair() {
+		return pair;
+	}
+	
+	public Type getType() {
+		return type;
+	}
+	
+	@Override
+	public int compareTo(Order other) {
+		
+		return exchangeAssetAmount.compareTo(other.exchangeAssetAmount);
+	}
+	
 	@Override
 	public String toString() {
 		Map<String, Object> json = new TreeMap<String, Object>();
 		json.put("ID", ID);
+		json.put("pair", pair);
+		json.put("type", type);
 		json.put("traderID", traderID);
 		json.put("asset", asset);
 		json.put("amount", amount);
@@ -230,15 +250,14 @@ class Order implements Comparable<Order> {
 		return getGson().toJson(json);
 	}
 	
-	@Override
-	public int compareTo(Order other) {
-		
-		return exchangeAssetAmount.compareTo(other.exchangeAssetAmount);
+	public enum Type {
+		BUY, SELL;
 	}
 }
 
 class OrderBook {
 	
+	// notActivedOrder
 	private final Set<CurrencyPair> pairs;
 	transient private Lock pairChangeLock;
 	transient private Condition pairNotFoundCondition;
@@ -374,6 +393,40 @@ class OrderBook {
 		// TODO Auto-generated method stub
 		
 	}
+
+	// TODO: implement check if the order was matched to other existing order, that case, update the two Trade accounts, or add it to notActivedOrder
+	public Order createOrder(Trader trader, Asset asset, Double amount, Asset exchangeAsset,
+			Double exchangeAssetAmount) {
+		
+		CurrencyPair pair = null;
+		pair = orderbook.findCurrencyPairBy(asset.getID(), exchangeAsset.getID());
+
+		if (pair == null) {
+			
+			for (String id : Arrays.asList(asset.getID(), exchangeAsset.getID())) {
+				pair = orderbook.findCurrencyPairBy(id);
+				if (pair != null) {
+					break;
+				}
+			}
+		}
+		if (pair == null) {
+			throw new RuntimeException("ERROR: unable to find on the orderbook a "
+					+ "compatible CurrencyPair for Assets with {asset=" + asset + 
+					", exchangeAsset=" + exchangeAsset + "}");
+		}
+		
+		Order order = new Order(getID(), asset, amount, exchangeAsset, exchangeAssetAmount);
+		pair.addOrder(order);
+		
+		try {
+			orderbook.updatePairOrders(pair);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("ERROR: update pair {" + pair + "} orders", e);
+		}
+		
+		return order;
+	}
 }
 
 
@@ -461,16 +514,41 @@ class Wallet {
 class Trader extends Account {
 
 	protected Wallet myWallet;
-	private OrderBook orderbook;
 	protected String name;
+	protected List<Order> createdOrders;
+	protected List<Order> filledOrders;
 	
 	Trader(String name, OrderBook orderbook) {
 		super();
-		if (name == null || name.trim().isEmpty() || orderbook == null) {
-			throw new RuntimeException("ERROR: unable to create a invalid Trader with { name=" + name + ", orderbook=" + orderbook +  "}");
+		if (name == null || name.trim().isEmpty()) {
+			throw new RuntimeException("ERROR: unable to create a invalid name {name=" + name + "}");
 		}
 		this.name = name;
-		this.orderbook = orderbook;
+		this.createdOrders = new ArrayList<>();
+	}
+	
+	public String getID() {
+		return super.getID();
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public List<Order> getCreatedOrders() {
+		return new ArrayList<>(createdOrders);
+	}
+	
+	public List<Order> getFilledOrders() {
+		return new ArrayList<>(filledOrders);
+	}
+	
+	void update() { // it will be called by the orderbook
+		
+	}
+	
+	void orderFilled(Order order) { // it will be called by the orderbook
+		
 	}
 	
 	@Override
@@ -479,44 +557,20 @@ class Trader extends Account {
 		json.put("ID", getID());
 		json.put("name", name);
 		json.put("myWallet", myWallet);
+		json.put("createdOrders", createdOrders);
+		json.put("filledrders", filledOrders);
 		return getGson().toJson(json);
 	}
 
-	public String getID() {
-		return super.getID();
-	}
-
-	public Order createOrder(final Asset asset, final Double amount, final Asset exchangeAsset,
+	// TODO: implements
+	public Order createOrder(final OrderBook orderbook, final Asset asset, final Double amount, final Asset exchangeAsset,
 			final Double exchangeAssetAmount) {
 		
-		CurrencyPair pair = null;
-		pair = orderbook.findCurrencyPairBy(asset.getID(), exchangeAsset.getID());
-
-		if (pair == null) {
-			
-			for (String id : Arrays.asList(asset.getID(), exchangeAsset.getID())) {
-				pair = orderbook.findCurrencyPairBy(id);
-				if (pair != null) {
-					break;
-				}
-			}
-		}
-		if (pair == null) {
-			throw new RuntimeException("ERROR: unable to find on the orderbook a "
-					+ "compatible CurrencyPair for Assets with {asset=" + asset + 
-					", exchangeAsset=" + exchangeAsset + "}");
-		}
+		Order createdOrder = orderbook.createOrder(this, asset, amount, exchangeAsset, exchangeAssetAmount);
+		createdOrders.add(createdOrder);
 		
-		Order order = new Order(getID(), asset, amount, exchangeAsset, exchangeAssetAmount);
-		pair.addOrder(order);
+		return null;
 		
-		try {
-			orderbook.updatePairOrders(pair);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("ERROR: update pair {" + pair + "} orders", e);
-		}
-		
-		return order;
 	}
 }
 
@@ -726,10 +780,6 @@ public class TestOrderBook {
 		assertEquals(rOrder, orderbook.getBidOrder(BRONZExSILVER));
 		assertEquals(tOrder, orderbook.getAskOrder(BRONZExSILVER));
 		*/
-		
-		orderbook.performMatcher(GOLDxUSD);
-		orderbook.performMatcher(GOLDxSILVER);
-		orderbook.performMatcher(BRONZExSILVER);
 		
 		
 		
