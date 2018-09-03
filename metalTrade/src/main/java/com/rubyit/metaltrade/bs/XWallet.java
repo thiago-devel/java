@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.rubyit.metaltrade.obj.Asset;
+import com.rubyit.metaltrade.obj.AssetType;
 
 public class XWallet {
 
@@ -16,7 +16,7 @@ public class XWallet {
 		wallet = new Wallet();
 	}
 	
-	public XMyAsset getAsset(final Asset asset) {
+	public XMyAsset getAsset(final AssetType asset) {
 		
 		return null;
 	}

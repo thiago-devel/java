@@ -14,7 +14,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.rubyit.metaltrade.obj.Asset;
+import com.rubyit.metaltrade.obj.AssetType;
 
 class Wallet {
 	
@@ -28,7 +28,7 @@ class Wallet {
 		assetChangeLock = new ReentrantLock();
 	}
 	
-	public void transfer(final Asset assetToTransfer, final Double amountToTranfer, final Account accountToTranfer) {
+	public void transfer(final AssetType assetToTransfer, final Double amountToTranfer, final Account accountToTranfer) {
 		
 		if (assetToTransfer == null || amountToTranfer == null || accountToTranfer == null) {
 			throw new RuntimeException("ERROR: unable to perform transfer with "
@@ -62,7 +62,7 @@ class Wallet {
 	/*
 	 * preventing directly access for a AssetBase.
 	 */
-	public MyAsset getAsset(final Asset asset) {
+	public MyAsset getAsset(final AssetType asset) {
 		
 		for (MyAsset myAsset : assets) {
 			if (myAsset.getAsset().equals(asset)) {
@@ -73,7 +73,7 @@ class Wallet {
 		return null;
 	}
 	
-	private MyAsset extractAssetBy(final Asset asset) {
+	private MyAsset extractAssetBy(final AssetType asset) {
 		
 		for (MyAsset myAsset : assets) {
 			if (myAsset.getAsset().equals(asset)) {
@@ -104,12 +104,12 @@ class Wallet {
 
 class MyAsset {
 	
-	private Asset asset;
+	private AssetType asset;
 	private BigDecimal balance;
 	transient private Lock balanceChangeLock;
 	transient private Condition sufficientFundsCondition;
 
-	public MyAsset(final Asset asset) {
+	public MyAsset(final AssetType asset) {
 		this.asset = asset;
 		balance = BigDecimal.ZERO;
 		balanceChangeLock = new ReentrantLock();
@@ -155,7 +155,7 @@ class MyAsset {
 		return balance;
 	}
 	
-	public Asset getAsset() {
+	public AssetType getAsset() {
 		return asset;
 	}
 

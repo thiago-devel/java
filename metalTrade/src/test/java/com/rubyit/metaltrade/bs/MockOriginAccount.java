@@ -9,13 +9,13 @@ import java.util.Set;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.rubyit.metaltrade.obj.Asset;
+import com.rubyit.metaltrade.obj.AssetType;
 
 public class MockOriginAccount extends Account {
 	
 	public static final Double INITIAL_BALANCE = 500.0;
 	
-	public MockOriginAccount(Asset asset) {
+	public MockOriginAccount(AssetType asset) {
 		super();
 		MyAsset myAsset = new MyAsset(asset);
 		ReflectionTestUtils.setField(myAsset, "balance", new BigDecimal(INITIAL_BALANCE, new MathContext(8, RoundingMode.HALF_EVEN)));

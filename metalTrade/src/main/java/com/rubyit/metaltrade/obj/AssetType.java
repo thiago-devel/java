@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class Asset {
+public class AssetType {
 	private String ID;
 	private String name;
 
-	public Asset(String name) {
+	public AssetType(String name) {
 		if (name == null || name.trim().equals("")) {
 			throw new RuntimeException("ERROR: Cannot create a asset with empty name");
 		}
@@ -52,7 +52,7 @@ public class Asset {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Asset other = (Asset) obj;
+		AssetType other = (AssetType) obj;
 		if (ID == null) {
 			if (other.ID != null)
 				return false;
