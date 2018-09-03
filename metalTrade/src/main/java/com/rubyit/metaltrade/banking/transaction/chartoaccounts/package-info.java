@@ -1,4 +1,0 @@
-@ParametersAreNonnullByDefault
-package com.rubyit.metaltrade.banking.transaction.chartoaccounts;
-
-import javax.annotation.ParametersAreNonnullByDefault;
