@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -407,7 +408,7 @@ class Order implements Comparable<Order> {
 	
 	@Override
 	public String toString() {
-		Map<String, Object> json = new TreeMap<String, Object>();
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("ID", ID);
 		json.put("traderID", traderID);
 		json.put("offeredAsset", offeredAsset);
@@ -525,7 +526,7 @@ class Account {
 	}
 	@Override
 	public String toString() {
-		Map<String, Object> json = new TreeMap<String, Object>();
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("ID", ID);
 		json.put("myWallet", myWallet);
 		return getGson().toJson(json);
@@ -556,7 +557,7 @@ class Wallet {
 	}
 	@Override
 	public String toString() {
-		Map<String, Object> json = new TreeMap<String, Object>();
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("ID", ID);
 		json.put("assets", assets);
 		return getGson().toJson(json);
@@ -610,7 +611,7 @@ class Asset {
 	}
 	@Override
 	public String toString() {
-		Map<String, Object> json = new TreeMap<String, Object>();
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("assetType", asset);
 		json.put("balance", balance);
 		return getGson().toJson(json);
@@ -646,10 +647,10 @@ class Pair {
 
 	@Override
 	public String toString() {
-		Map<String, Object> json = new TreeMap<String, Object>();
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
+		json.put("currencyPair", currencyPair);
 		json.put("amountAsset", amountAsset);
 		json.put("priceAsset", priceAsset);
-		json.put("currencyPair", currencyPair);
 		return getGson().toJson(json);
 	}
 }
