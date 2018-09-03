@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,11 +18,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -41,16 +44,116 @@ public class TestOrders {
 	private static final Pair GOLDxSILVER = new Pair(GOLD, SILVER);//"GOLD/SILVER" 
 	private static final Pair BRONZExSILVER = new Pair(BRONZE, SILVER);//"BRONZE/SILVER"
 	
+	@Ignore
+	@Test(expected = RuntimeException.class)
+	public void testShouldThrowExceptionWhenCreateOrderWithNegativeBalance() {
+		final Double usdAmount = 49.99;
+		final Double usdUnitPrice = 1.00;
+		final Double silverAmount = 43.44;
+		final Double silverUnitPriceInUSD = 8.88;
+		
+		final MathContext mc = new MathContext(8, RoundingMode.HALF_EVEN);
+		
+		MockOriginAccount mockOriginAccountUSD = new MockOriginAccount(USD);
+		assertNotNull(mockOriginAccountUSD.getWalletAsset(USD));
+		assertNotNull(mockOriginAccountUSD.getWalletAsset(USD).getBalance());
+		assertEquals(0, mockOriginAccountUSD.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE)));
+		MockOriginAccount mockOriginAccountGOLD = new MockOriginAccount(GOLD);
+		assertNotNull(mockOriginAccountGOLD.getWalletAsset(GOLD));
+		assertNotNull(mockOriginAccountGOLD.getWalletAsset(GOLD).getBalance());
+		assertEquals(0, mockOriginAccountGOLD.getWalletAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE)));
+		MockOriginAccount mockOriginAccountSILVER = new MockOriginAccount(SILVER);
+		assertNotNull(mockOriginAccountSILVER.getWalletAsset(SILVER));
+		assertNotNull(mockOriginAccountSILVER.getWalletAsset(SILVER).getBalance());
+		assertEquals(0, mockOriginAccountSILVER.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE)));
+		MockOriginAccount mockOriginAccountBRONZE = new MockOriginAccount(BRONZE);
+		assertNotNull(mockOriginAccountBRONZE.getWalletAsset(BRONZE));
+		assertNotNull(mockOriginAccountBRONZE.getWalletAsset(BRONZE).getBalance());
+		assertEquals(0, mockOriginAccountBRONZE.getWalletAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE)));
+		
+		TraderType thiago = new MockTrader("Thiago", USD);
+		assertNotNull(thiago.getWalletAsset(USD));
+		assertNotNull(thiago.getWalletAsset(USD).getBalance());
+		assertEquals(0, thiago.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		TraderType renata = new MockTrader("Renata", USD);
+		assertNotNull(renata.getWalletAsset(USD));
+		assertNotNull(renata.getWalletAsset(USD).getBalance());
+		assertEquals(0, renata.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		TraderType maria = new MockTrader("Maria", USD);
+		assertNotNull(maria.getWalletAsset(USD));
+		assertNotNull(maria.getWalletAsset(USD).getBalance());
+		assertEquals(0, maria.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		TraderType alice = new MockTrader("Alice", USD);
+		assertNotNull(alice.getWalletAsset(USD));
+		assertNotNull(alice.getWalletAsset(USD).getBalance());
+		assertEquals(0, alice.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		
+		
+		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
+		AssetType offeredAsset = null;
+		Double offeredAmount = null;
+		AssetType expectedAsset = null;
+		Double expectedAssetUnitPrice = null;
+		
+		offeredAsset = USD;
+		offeredAmount = usdAmount;
+		expectedAsset = USD;
+		expectedAssetUnitPrice = usdUnitPrice;
+		//mockOriginAccountUSD.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);//getWallet().transfer(USD, usdAmount, thiago);
+		
+		
+		
+		offeredAsset = SILVER;
+		offeredAmount = silverAmount;
+		expectedAsset = USD;
+		expectedAssetUnitPrice = silverUnitPriceInUSD;
+		Order order2 = mockOriginAccountSILVER.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(SILVERxUSD, order2.getPair());
+		assertNotNull(order2.getAssetTotalAmountPrice());
+		Double assetTotalAmountPriceSilverUsd = order2.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order2.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceSilverUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
+		
+
+		
+		offeredAsset = USD;
+		offeredAmount = silverUnitPriceInUSD;
+		expectedAsset = SILVER;
+		expectedAssetUnitPrice = silverAmount;
+		Order order5 = maria.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(SILVERxUSD, order5.getPair());
+		assertNotNull(order5.getAssetTotalAmountPrice());
+		Double assetTotalAmountPriceUsdSilver = order5.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order5.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdSilver), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
+		
+		
+		
+		assertEquals(0, thiago.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		assertNotNull(maria.getWalletAsset(SILVER));
+		assertNotNull(maria.getWalletAsset(SILVER).getBalance());
+		assertEquals(0, maria.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(silverAmount)));
+		
+		assertEquals(0, mockOriginAccountSILVER.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverAmount))));
+		
+		assertEquals(0, thiago.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		assertNotNull(maria.getWalletAsset(USD));
+		assertNotNull(maria.getWalletAsset(USD).getBalance());
+		assertEquals(0, maria.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverUnitPriceInUSD))));
+	}
+	
 	@Test
 	public void testCreateAndAutoeexecuteOrders() {
 		final Double usdAmount = 49.99;
 		final Double usdUnitPrice = 1.00;
 		final Double goldAmount = 4.11;
 		final Double goldUnitPriceInUSD = 40.12;
-		final Double silverAmount = 43.44;
+		final Double silverAmount = 22.22;
 		final Double silverUnitPriceInUSD = 8.88;
-		final Double bronzeAmount = 157.33;
+		final Double bronzeAmount = 147.33;
 		final Double bronzeUnitPriceInUSD = 1.62;
+		
+		final MathContext mc = new MathContext(8, RoundingMode.HALF_EVEN);
 		
 		MockOriginAccount mockOriginAccountUSD = new MockOriginAccount(USD);
 		assertNotNull(mockOriginAccountUSD.getWalletAsset(USD));
@@ -109,7 +212,7 @@ public class TestOrders {
 		assertNotNull(order1.getAssetTotalAmountPrice());
 		Double assetTotalAmountPriceGoldUsd = order1.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order1.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceGoldUsd, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceGoldUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		offeredAsset = SILVER;
 		offeredAmount = silverAmount;
@@ -120,7 +223,7 @@ public class TestOrders {
 		assertNotNull(order2.getAssetTotalAmountPrice());
 		Double assetTotalAmountPriceSilverUsd = order2.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order2.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceSilverUsd, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceSilverUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		offeredAsset = BRONZE;
 		offeredAmount = bronzeAmount;
@@ -131,7 +234,7 @@ public class TestOrders {
 		assertNotNull(order3.getAssetTotalAmountPrice());
 		Double assetTotalAmountPriceBronzeUsd = order3.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order2.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceBronzeUsd, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceBronzeUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 
 		offeredAsset = USD;
 		offeredAmount = goldUnitPriceInUSD;
@@ -142,7 +245,7 @@ public class TestOrders {
 		assertNotNull(order4.getAssetTotalAmountPrice());
 		Double assetTotalAmountPriceUsdGold = order4.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order4.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceUsdGold, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdGold), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		offeredAsset = USD;
 		offeredAmount = silverUnitPriceInUSD;
@@ -153,7 +256,7 @@ public class TestOrders {
 		assertNotNull(order5.getAssetTotalAmountPrice());
 		Double assetTotalAmountPriceUsdSilver = order5.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order5.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceUsdSilver, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdSilver), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		offeredAsset = USD;
 		offeredAmount = bronzeUnitPriceInUSD;
@@ -162,31 +265,44 @@ public class TestOrders {
 		Order order6 = alice.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
 		assertEquals(BRONZExUSD, order6.getPair());
 		assertNotNull(order6.getAssetTotalAmountPrice());
-		Double assetTotalAmountPriceUsdBronze = order5.getAssetTotalAmountPrice().doubleValue();
+		Double assetTotalAmountPriceUsdBronze = order6.getAssetTotalAmountPrice().doubleValue();
 		assertNotEquals(0, order6.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
-		assertEquals(assetTotalAmountPriceUsdBronze, BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice)) );
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdBronze), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		
 		assertEquals(0, thiago.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
+		assertNotNull(renata.getWalletAsset(GOLD));
+		assertNotNull(renata.getWalletAsset(GOLD).getBalance());
 		assertEquals(0, renata.getWalletAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldAmount)));
-		assertEquals(0, maria.getWalletAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(silverAmount)));
-		assertEquals(0, alice.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(bronzeAmount)));
+		assertEquals(0, renata.getWalletAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(goldAmount)));
+		assertNotNull(maria.getWalletAsset(SILVER));
+		assertNotNull(maria.getWalletAsset(SILVER).getBalance());
+		assertEquals(0, maria.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(silverAmount)));
+		assertNotNull(alice.getWalletAsset(BRONZE));
+		assertNotNull(alice.getWalletAsset(BRONZE).getBalance());
+		assertEquals(0, alice.getWalletAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(bronzeAmount)));
 		
-		assertEquals(0, mockOriginAccountGOLD.getWalletAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(goldAmount))));
-		assertEquals(0, mockOriginAccountSILVER.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverAmount))));
-		assertEquals(0, mockOriginAccountBRONZE.getWalletAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(bronzeAmount))));
+		assertEquals(0, mockOriginAccountGOLD.getWalletAsset(GOLD).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE).subtract(BigDecimal.valueOf(goldUnitPriceInUSD).multiply(BigDecimal.valueOf(goldAmount)), mc)));
+		assertEquals(0, mockOriginAccountSILVER.getWalletAsset(SILVER).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverUnitPriceInUSD).multiply(BigDecimal.valueOf(silverAmount)), mc)));
+		assertEquals(0, mockOriginAccountBRONZE.getWalletAsset(BRONZE).getBalance().compareTo(BigDecimal.valueOf(MockOriginAccount.INITIAL_BALANCE).subtract(BigDecimal.valueOf(bronzeUnitPriceInUSD).multiply(BigDecimal.valueOf(bronzeAmount)), mc)));
 		
 		assertEquals(0, thiago.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
-		assertEquals(0, renata.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(goldUnitPriceInUSD))));
-		assertEquals(0, maria.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverUnitPriceInUSD))));
-		assertEquals(0, alice.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(bronzeUnitPriceInUSD))));
+		assertNotNull(renata.getWalletAsset(USD));
+		assertNotNull(renata.getWalletAsset(USD).getBalance());
+		assertEquals(0, renata.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(goldUnitPriceInUSD).multiply(BigDecimal.valueOf(goldAmount)), mc)));
+		assertNotNull(maria.getWalletAsset(USD));
+		assertNotNull(maria.getWalletAsset(USD).getBalance());
+		assertEquals(0, maria.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(silverUnitPriceInUSD).multiply(BigDecimal.valueOf(silverAmount)), mc)));
+		assertNotNull(alice.getWalletAsset(USD));
+		assertNotNull(alice.getWalletAsset(USD).getBalance());
+		assertEquals(0, alice.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE).subtract(BigDecimal.valueOf(bronzeUnitPriceInUSD).multiply(BigDecimal.valueOf(bronzeAmount)), mc)));
 	}
 
 }
 
 final class MockTrader extends Trader {
 	
-	public static final Double INITIAL_BALANCE = 60.44;
+	public static final Double INITIAL_BALANCE = 260.44;
 	MockTrader(String name, AssetType usd) {
 		super(name);
 		Asset myAsset = new Asset(usd);
@@ -211,26 +327,89 @@ class MockOriginAccount extends Trader {
 	}
 }
 
+class PairOrders {
+	
+	private Pair pair;
+	private Set<Order> sellOrders;
+	private Set<Order> buyOrders;
+	
+	public PairOrders(Pair pair) {
+		this.pair = pair;
+		this.sellOrders = new TreeSet<>();
+		this.buyOrders = new TreeSet<>();
+	}
+	
+	public Pair getPair() {
+		return pair;
+	}
+	
+	public void addSellOrder(Order order) {
+		sellOrders.add(order);
+	}
+	
+	public void removeSellOrder(Order order) {
+		for (Order o : sellOrders) {
+			if (o.getID().equals(order.getID())) {
+				sellOrders.remove(o);
+			}
+		}
+	}
+	
+	public void addBuyOrder(Order order) {
+		buyOrders.add(order);
+		
+	}
+	public void removeBuyOrder(Order order) {
+		for (Order o : buyOrders) {
+			if (o.getID().equals(order.getID())) {
+				buyOrders.remove(o);
+			}
+		}
+	}
+
+	public List<Order> retrieveSellOrders() {
+		return new ArrayList<>(sellOrders);
+	}
+	
+	public List<Order> retrieveBuyOrders() {
+		return new ArrayList<>(buyOrders);
+	}
+	
+	@Override
+	public String toString() {
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
+		json.put("pair", pair);
+		json.put("sellOrders", retrieveSellOrders());
+		json.put("buyOrders", retrieveBuyOrders());
+		return getGson().toJson(json);
+	}
+}
+
 class OrderBook {
 	
-	private Set<Pair> pairs;
+	private Set<PairOrders> pairs;
+	private Set<TraderType> traders;
 	transient private Lock pairChangeLock;
 	
 	public OrderBook(Pair... pairs) {
 		if (pairs == null || pairs.length == 0) {
 			throw new RuntimeException("ERROR: unable to create a orderbook without at least one Pair");
 		}
-		
-		this.pairs = new HashSet<>(Arrays.asList(pairs));
+		this.pairs = new HashSet<>();
+		this.traders = new HashSet<>();
+		for (Pair pair : pairs) {
+			this.pairs.add(new PairOrders(pair));
+		}
 		pairChangeLock = new ReentrantLock();
 	}
 
-	public Order createOrder(Trader trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
+	public Order createOrder(TraderType trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
 			Double expectedAssetUnitPrice) {
 		
 		String offeredAssetID = offeredAsset.getID();
 		String expectedAssetID = expectedAsset.getID();
-		Pair pair = findPairBy(offeredAssetID, expectedAssetID);
+		PairOrders pair = findPairBy(offeredAssetID, expectedAssetID);
+		Order order = null;
 
 		if (pair == null) {
 			
@@ -247,33 +426,82 @@ class OrderBook {
 					", expectedAsset=" + expectedAsset + "}");
 		}
 		
-		String amountAssetID = pair.getAmountAsset().getID();
-		String priceAssetID = pair.getPriceAsset().getID();
+		String amountAssetID = pair.getPair().getAmountAsset().getID();
+		String priceAssetID = pair.getPair().getPriceAsset().getID();
 		if (
 			(offeredAssetID.equals(amountAssetID))
 			&& (expectedAssetID.equals(priceAssetID))
 		   ) {
 			
-			return new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair, Order.Type.SELL);
+			traders.add(trader);
+			Order.Type orderType = Order.Type.SELL;
+			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
+			trader.addCreatedOrder(order);
+			//look to buyOrders
+			Order matchedOrder = (pair.retrieveBuyOrders().size() > 0) ? pair.retrieveBuyOrders().get(0) : null;
+			if (matchedOrder == null) {
+				
+				pair.addSellOrder(order);
+				return order;
+			}
+			
+			return processMatchOrders(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair,
+					orderType, matchedOrder, order);
 		}
 		if (
 			(offeredAssetID.equals(priceAssetID))
 			&& (expectedAssetID.equals(amountAssetID))
 		   ) {
 			
-			return new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair, Order.Type.BUY);
+			traders.add(trader);
+			Order.Type orderType = Order.Type.BUY;
+			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
+			trader.addCreatedOrder(order);
+			//look to buyOrders
+			Order matchedOrder = (pair.retrieveSellOrders().size() > 0) ? pair.retrieveSellOrders().get(0) : null;
+			if (matchedOrder == null) {
+				
+				pair.addBuyOrder(order);
+				return order;
+			}
+			
+			return processMatchOrders(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair,
+					orderType, matchedOrder, order);
 		}
 		
 		throw new RuntimeException("ERROR: that order {offeredAsset=" + offeredAsset + ", expectedAsset=" + expectedAsset+ "} doesn't belongs to that pair {" + pair + "}");
 	}
+
+	private Order processMatchOrders(TraderType trader, AssetType offeredAsset, Double offeredAmount,
+			AssetType expectedAsset, Double expectedAssetUnitPrice, PairOrders pair, Order.Type orderType,
+			Order matchedOrder, Order order) {
+		
+		String otherTraderID = matchedOrder.getTraderID();
+		if (trader.getID().equals(otherTraderID)) {
+			pair.addSellOrder(order);
+			return order;
+		}
+		
+		for (TraderType otherTrader : traders) {
+			
+			if (otherTrader.getID().equals(otherTraderID)) {
+				trader.fillOrder(matchedOrder, order.getID());
+				otherTrader.fillOrder(order, matchedOrder.getID());
+				trader.removeCreatedOrder(order);
+				otherTrader.removeCreatedOrder(matchedOrder);
+			}
+		}
+		
+		return order;
+	}
 	
-	public Pair findPairBy(String offeredAssetID, String expectedAssetID) {
+	public PairOrders findPairBy(String offeredAssetID, String expectedAssetID) {
 		
 		pairChangeLock.lock();
 		try {
-			for (Pair pair : pairs) {
-				String amountAssetID = pair.getAmountAsset().getID();
-				String priceAssetID = pair.getPriceAsset().getID();
+			for (PairOrders pair : pairs) {
+				String amountAssetID = pair.getPair().getAmountAsset().getID();
+				String priceAssetID = pair.getPair().getPriceAsset().getID();
 				if ((amountAssetID.equals(offeredAssetID)) && (priceAssetID.equals(expectedAssetID))) {
 					return pair;
 				}
@@ -289,12 +517,12 @@ class OrderBook {
 		return null;
 	}
 	
-	public Pair findPairBy(Optional<String> optionalPairName) {
+	public PairOrders findPairBy(Optional<String> optionalPairName) {
 		
 		pairChangeLock.lock();
 		try {
-			for (Pair pair : pairs) {
-				String pairName = pair.getPairName();
+			for (PairOrders pair : pairs) {
+				String pairName = pair.getPair().getPairName();
 				if (optionalPairName.get().equals(pairName)) {
 					return pair;
 				}
@@ -307,13 +535,13 @@ class OrderBook {
 		return null;
 	}
 	
-	public Pair findPairBy(String assetID) {
+	public PairOrders findPairBy(String assetID) {
 		
 		pairChangeLock.lock();
 		try {
-			for (Pair pair : pairs) {
-				String amountAssetID = pair.getAmountAsset().getID();
-				String priceAssetID = pair.getPriceAsset().getID();
+			for (PairOrders pair : pairs) {
+				String amountAssetID = pair.getPair().getAmountAsset().getID();
+				String priceAssetID = pair.getPair().getPriceAsset().getID();
 				if (amountAssetID.equals(assetID)) {
 					return pair;//new CurrencyPair(currencyPair);
 				}
@@ -340,14 +568,24 @@ class Order implements Comparable<Order> {
 	private AssetType expectedAsset;
 	private BigDecimal expectedAssetUnitPrice;
 	private BigDecimal assetTotalAmountPrice;
-	private MathContext mc;
+	transient private MathContext mc;
 	private Pair pair;
 	private Type type;
-	private DateTimeFormatter sdf;
-	private LocalDate operationDate;
+	transient private DateTimeFormatter sdf;
+	private LocalDateTime operationDate;
 	
-	public Order(Trader trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
+	public Order(TraderType trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
 			Double expectedAssetUnitPrice, Pair pair, Type type) {
+		
+		if (trader == null || offeredAsset == null || offeredAmount == null || expectedAsset == null
+				|| expectedAssetUnitPrice == null || pair == null || type == null) {
+			throw new RuntimeException("ERROR: unable to create an invalid " 
+				+ "order with fields {trader=" + trader + ", offeredAmount=" 
+					+ offeredAmount + ", expectedAsset=" + expectedAsset
+					+ ", expectedAssetUnitPrice=" + expectedAssetUnitPrice 
+					+ ", pair=" + pair + ", type=" + type + "}");
+		}
+		
 		ID = UUID.randomUUID().toString();
 		traderID = trader.getID();
 		this.offeredAsset = offeredAsset;
@@ -355,9 +593,11 @@ class Order implements Comparable<Order> {
 		this.offeredAmount = new BigDecimal(offeredAmount, mc);
 		this.expectedAsset = expectedAsset;
 		this.expectedAssetUnitPrice = new BigDecimal(expectedAssetUnitPrice, mc);
-		this.assetTotalAmountPrice = this.offeredAmount.multiply(this.expectedAssetUnitPrice);
-		sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		operationDate = LocalDate.now();
+		this.assetTotalAmountPrice = this.offeredAmount.multiply(this.expectedAssetUnitPrice, mc);
+		this.pair = pair;
+		this.type = type;
+		sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		operationDate = LocalDateTime.now();
 	}
 	
 	public String getID() {
@@ -396,14 +636,15 @@ class Order implements Comparable<Order> {
 		return type;
 	}
 
-	public LocalDate getOperationDate() {
+	public LocalDateTime getOperationDate() {
 		return operationDate;
 	}
 	
 	@Override
 	public int compareTo(Order other) {
+		int result = expectedAssetUnitPrice.compareTo(other.expectedAssetUnitPrice);
 		
-		return operationDate.compareTo(other.operationDate);
+		return (result != 0) ? result : operationDate.compareTo(other.operationDate);
 	}
 	
 	@Override
@@ -461,36 +702,53 @@ class Trader extends Account implements TraderType {
 	
 	public Order createOrder(OrderBook orderbook, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset, Double expectedAssetUnitPrice) {
 		Order createdOrder = orderbook.createOrder(this, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
-		createdOrders.add(createdOrder);
 		
 		return createdOrder;
 	}
 	
-	public void fillOrder(Order filledOrder, String createdOrderID) {
-		for (Order order : createdOrders) {
+	public void addCreatedOrder(Order order) {
+		createdOrders.add(order);
+	}
+	
+	public void removeCreatedOrder(Order order) {
+		for (Order o : createdOrders) {
 			
-			if (order.getID().equals(createdOrderID)) {
-				
-				// perform withdraw and deposit
-				AssetType offeredAsset = filledOrder.getOfferedAsset();
-				BigDecimal offeredAmount = filledOrder.getOfferedAmount();
-				AssetType expectedAsset = filledOrder.getExpectedAsset();
-				BigDecimal totalAmountPrice = filledOrder.getAssetTotalAmountPrice();
-				try {
-					myWallet.getAsset(offeredAsset).withdraw(offeredAmount);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					//assetChangeLock.unlock();
-					throw new RuntimeException("ERROR: unable to perform transfer", e);
-				}
-				myWallet.getAsset(expectedAsset).deposit(totalAmountPrice);
-				
-				
-				createdOrders.remove(order);
-				filledOrders.add(filledOrder);
+			if (o.getID().equals(order.getID())) {
+				createdOrders.remove(o);
+				return;
 			}
 		}
+	}
+	
+	public void fillOrder(Order filledOrder, String createdOrderID) {
+		
+		// perform withdraw and deposit
+		AssetType offeredAsset = filledOrder.getOfferedAsset();
+		BigDecimal offeredAmount = filledOrder.getOfferedAmount();
+		AssetType expectedAsset = filledOrder.getExpectedAsset();
+		BigDecimal totalAmountPrice = filledOrder.getAssetTotalAmountPrice();
+		try {
+			myWallet.getAsset(expectedAsset).withdraw(totalAmountPrice);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			//assetChangeLock.unlock();
+			throw new RuntimeException("ERROR: unable to perform transfer", e);
+		}
+		myWallet.getAsset(offeredAsset).deposit(offeredAmount);
+		
+		filledOrders.add(filledOrder);
+	}
+	
+	@Override
+	public String toString() {
+		Map<String, Object> json = new LinkedHashMap<String, Object>();
+		json.put("ID", getID());
+		json.put("name", name);
+		json.put("wallet", myWallet);
+		json.put("createdOrders", createdOrders);
+		json.put("filledOrders", filledOrders);
+		return getGson().toJson(json);
 	}
 }
 
@@ -502,6 +760,9 @@ interface TraderType {
 	Asset getWalletAsset(AssetType asset);
 	List<Asset> getWalletAllAssets();
 	Order createOrder(OrderBook orderbook, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset, Double expectedAssetUnitPrice);
+	void addCreatedOrder(Order order);
+	void removeCreatedOrder(Order order);
+	void fillOrder(Order filledOrder, String createdOrderID);
 }
 
 class Account {
@@ -550,7 +811,9 @@ class Wallet {
 			}
 		}
 		
-		return null;
+		Asset a = new Asset(asset);
+		assets.add(a);
+		return a;
 	}
 	public List<Asset> getAssets() {
 		return new ArrayList<>(assets);
