@@ -15,7 +15,7 @@ public interface TraderType {
 	Asset getWalletAsset(AssetType asset);
 	List<Asset> getWalletAllAssets();
 	Order createOrder(OrderBook orderbook, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset, Double expectedAssetUnitPrice);
-	void addCreatedOrder(Order order);
+	void addCreatedOrder(Order order, OrderBook orderbook, PairOrders pair);
 	void removeCreatedOrder(Order order, OrderBook orderbook, PairOrders pair);
 	void fillOrder(Order filledOrder, String createdOrderID);
 }

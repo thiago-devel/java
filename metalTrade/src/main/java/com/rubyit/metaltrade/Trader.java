@@ -73,7 +73,12 @@ public class Trader extends Account implements TraderType {
 		return createdOrder;
 	}
 
-	public void addCreatedOrder(Order order) {
+	public void addCreatedOrder(Order order, OrderBook orderbook, PairOrders pair) {
+		if (order.getType() == Order.Type.BUY) {
+			orderbook.retrievePairOrders(pair.getPair()).addBuyOrder(order);
+		} else { 
+			orderbook.retrievePairOrders(pair.getPair()).addSellOrder(order);
+		}
 		createdOrders.add(order);
 	}
 

@@ -62,13 +62,12 @@ public class OrderBook {
 			traders.add(trader);
 			Order.Type orderType = Order.Type.SELL;
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
-			trader.addCreatedOrder(order);
+			trader.addCreatedOrder(order, this, pair);
 			//look to buyOrders
-			//TODO: implements real matcher
-			Order matchedOrder = (pair.retrieveBuyOrders().size() > 0) ? pair.retrieveBuyOrders().get(0) : null;
-			if (matchedOrder == null) {
+			Order matchedOrder = (pair.retrieveBuyOrders().size() > 0) ? pair.getAskOrder() : null;
+			//TODO: implements real matcher || shouldNotMatchTwoOrdersIfTheBidPriceIsMajorThanTheAskPrice
+			if (matchedOrder == null || matchedOrder.getExpectedAssetUnitPrice().compareTo(order.getExpectedAssetUnitPrice()) > 0) {
 				
-				pair.addSellOrder(order);
 				return order;
 			}
 			
@@ -83,13 +82,12 @@ public class OrderBook {
 			traders.add(trader);
 			Order.Type orderType = Order.Type.BUY;
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
-			trader.addCreatedOrder(order);
+			trader.addCreatedOrder(order, this, pair);
 			//look to sellOrders
-			//TODO: implements real matcher
-			Order matchedOrder = (pair.retrieveSellOrders().size() > 0) ? pair.retrieveSellOrders().get(0) : null;
-			if (matchedOrder == null) {
+			Order matchedOrder = (pair.retrieveSellOrders().size() > 0) ? pair.getBidOrder() : null;
+			//TODO: implements real matcher || shouldNotMatchTwoOrdersIfTheAskPriceIsMajorThanTheBidPrice
+			if (matchedOrder == null || matchedOrder.getExpectedAssetUnitPrice().compareTo(order.getExpectedAssetUnitPrice()) > 0) {
 				
-				pair.addBuyOrder(order);
 				return order;
 			}
 			
