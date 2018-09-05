@@ -67,7 +67,7 @@ public class PairOrders {
 	
 	public Order getAskOrder() {
 		List<Order> buyOrders = retrieveBuyOrders();
-		return (buyOrders.size() > 0) ? buyOrders.get(0) : null;
+		return (buyOrders.size() > 0) ? buyOrders.get(buyOrders.size() - 1) : null;
 	}
 
 	@Override

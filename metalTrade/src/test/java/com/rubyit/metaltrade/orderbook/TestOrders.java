@@ -106,35 +106,90 @@ public class TestOrders {
 		Double assetTotalAmountPriceGoldUsd = null;
 		
 		offeredAsset = GOLD;
-		offeredAmount = goldAmount * 2;
+		offeredAmount = 4.11d;
 		expectedAsset = USD;
-		expectedAssetUnitPrice = goldUnitPriceInUSD;
-		Order order3 = mockOriginAccountGOLD.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
-		assertEquals(GOLDxUSD, order3.getPair());
-		assertNotNull(order3.getAssetTotalAmountPrice());
-		assetTotalAmountPriceGoldUsd = order3.getAssetTotalAmountPrice().doubleValue();
-		assertNotEquals(0, order3.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		expectedAssetUnitPrice = 0.02492522d; // 1 / goldUnitPriceInUSD;
+		Order order1 = renata.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(GOLDxUSD, order1.getPair());
+		assertNotNull(order1.getAssetTotalAmountPrice());
+		assetTotalAmountPriceGoldUsd = order1.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order1.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
 		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceGoldUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		offeredAsset = GOLD;
-		offeredAmount = goldAmount;
+		offeredAmount = 8.22d;
 		expectedAsset = USD;
-		expectedAssetUnitPrice = 1 / goldUnitPriceInUSD;
-		Order order4 = renata.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
-		assertEquals(GOLDxUSD, order4.getPair());
-		assertNotNull(order4.getAssetTotalAmountPrice());
-		assetTotalAmountPriceGoldUsd = order4.getAssetTotalAmountPrice().doubleValue();
-		assertNotEquals(0, order4.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		expectedAssetUnitPrice = 40.12d;
+		Order order2 = mockOriginAccountGOLD.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(GOLDxUSD, order2.getPair());
+		assertNotNull(order2.getAssetTotalAmountPrice());
+		assetTotalAmountPriceGoldUsd = order2.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order2.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
 		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceGoldUsd), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
 		
 		PairOrders goldXusdPairOrders = orderbook.retrievePairOrders(GOLDxUSD);
 		assertNotNull(goldXusdPairOrders);
-		assertEquals(order4, goldXusdPairOrders.getBidOrder());
+		assertEquals(order1, goldXusdPairOrders.getBidOrder());
 	}
 	
 	@Test
 	public void shouldHaveAPairWithNotNullAskOrder(){
-		throw new UnsupportedOperationException("Not yet Implemented test.");
+		Double usdAmount = null;
+		Double usdUnitPrice = null;
+		Double goldAmount = null;
+		Double goldUnitPriceInUSD = null;
+		Double silverAmount = null;
+		Double silverUnitPriceInUSD = null;
+		Double bronzeAmount = null;
+		Double bronzeUnitPriceInUSD = null;
+		
+		MockOriginAccount mockOriginAccountUSD = new MockOriginAccount(USD);
+		MockOriginAccount mockOriginAccountGOLD = null;
+		MockOriginAccount mockOriginAccountSILVER = null;
+		MockOriginAccount mockOriginAccountBRONZE = null;
+		
+		TraderType thiago = new MockTrader("Thiago", USD);
+		TraderType renata = null;
+		TraderType maria = null;
+		TraderType alice = null;
+		
+		AssetType offeredAsset = null;
+		Double offeredAmount = null;
+		AssetType expectedAsset = null;
+		Double expectedAssetUnitPrice = null;
+		
+		OrderBook orderbook = execute(usdAmount, usdUnitPrice, goldAmount, goldUnitPriceInUSD, silverAmount, 
+				silverUnitPriceInUSD, bronzeAmount, bronzeUnitPriceInUSD, mc, mockOriginAccountUSD,
+				mockOriginAccountGOLD, mockOriginAccountSILVER, mockOriginAccountBRONZE,
+				thiago, renata, maria, alice);
+		
+		Double assetTotalAmountPriceUsdGold = null;
+		
+		offeredAsset = USD;
+		offeredAmount = 1.33d;
+		expectedAsset = GOLD;
+		expectedAssetUnitPrice = 48.44d;
+		Order order1 = thiago.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(GOLDxUSD, order1.getPair());
+		assertNotNull(order1.getAssetTotalAmountPrice());
+		assetTotalAmountPriceUsdGold = order1.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order1.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdGold), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
+		
+		offeredAsset = USD;
+		offeredAmount = 12.55d;
+		expectedAsset = GOLD;
+		expectedAssetUnitPrice = 7.99d;
+		Order order2 = mockOriginAccountUSD.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		assertEquals(GOLDxUSD, order2.getPair());
+		assertNotNull(order2.getAssetTotalAmountPrice());
+		assetTotalAmountPriceUsdGold = order2.getAssetTotalAmountPrice().doubleValue();
+		assertNotEquals(0, order2.getAssetTotalAmountPrice().compareTo(BigDecimal.ZERO));
+		assertEquals(BigDecimal.valueOf(assetTotalAmountPriceUsdGold), BigDecimal.valueOf(offeredAmount).multiply(BigDecimal.valueOf(expectedAssetUnitPrice), mc) );
+
+		PairOrders usdXgoldPairOrders = orderbook.retrievePairOrders(GOLDxUSD);
+		assertNotNull(usdXgoldPairOrders);
+		assertEquals(order1, usdXgoldPairOrders.getAskOrder());
 	}
 
 	@Test
