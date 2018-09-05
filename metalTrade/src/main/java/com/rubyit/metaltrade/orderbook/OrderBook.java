@@ -64,6 +64,7 @@ public class OrderBook {
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
 			trader.addCreatedOrder(order);
 			//look to buyOrders
+			//TODO: implements real matcher
 			Order matchedOrder = (pair.retrieveBuyOrders().size() > 0) ? pair.retrieveBuyOrders().get(0) : null;
 			if (matchedOrder == null) {
 				
@@ -83,7 +84,8 @@ public class OrderBook {
 			Order.Type orderType = Order.Type.BUY;
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
 			trader.addCreatedOrder(order);
-			//look to buyOrders
+			//look to sellOrders
+			//TODO: implements real matcher
 			Order matchedOrder = (pair.retrieveSellOrders().size() > 0) ? pair.retrieveSellOrders().get(0) : null;
 			if (matchedOrder == null) {
 				
@@ -104,7 +106,6 @@ public class OrderBook {
 		
 		String otherTraderID = matchedOrder.getTraderID();
 		if (trader.getID().equals(otherTraderID)) {
-			pair.addSellOrder(order);
 			return order;
 		}
 		
@@ -113,8 +114,8 @@ public class OrderBook {
 			if (otherTrader.getID().equals(otherTraderID)) {
 				trader.fillOrder(matchedOrder, order.getID());
 				otherTrader.fillOrder(order, matchedOrder.getID());
-				trader.removeCreatedOrder(order);
-				otherTrader.removeCreatedOrder(matchedOrder);
+				trader.removeCreatedOrder(order, this, pair);
+				otherTrader.removeCreatedOrder(matchedOrder, this, pair);
 			}
 		}
 		
@@ -181,6 +182,13 @@ public class OrderBook {
 		}
 		
 		return null;
+	}
+
+	public PairOrders retrievePairOrders(Pair pair) {
+		if (pair == null) {
+			throw new RuntimeException("ERROR: unable to perform search with a null Pair.");
+		}
+		return findPairBy(Optional.of(pair.getPairName()));
 	}
 	
 }

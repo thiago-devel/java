@@ -95,6 +95,84 @@ public class Order implements Comparable<Order> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+		result = prime * result + ((assetTotalAmountPrice == null) ? 0 : assetTotalAmountPrice.hashCode());
+		result = prime * result + ((expectedAsset == null) ? 0 : expectedAsset.hashCode());
+		result = prime * result + ((expectedAssetUnitPrice == null) ? 0 : expectedAssetUnitPrice.hashCode());
+		result = prime * result + ((offeredAmount == null) ? 0 : offeredAmount.hashCode());
+		result = prime * result + ((offeredAsset == null) ? 0 : offeredAsset.hashCode());
+		result = prime * result + ((operationDate == null) ? 0 : operationDate.hashCode());
+		result = prime * result + ((pair == null) ? 0 : pair.hashCode());
+		result = prime * result + ((traderID == null) ? 0 : traderID.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Order other = (Order) obj;
+		if (ID == null) {
+			if (other.ID != null)
+				return false;
+		} else if (!ID.equals(other.ID))
+			return false;
+		if (assetTotalAmountPrice == null) {
+			if (other.assetTotalAmountPrice != null)
+				return false;
+		} else if (!assetTotalAmountPrice.equals(other.assetTotalAmountPrice))
+			return false;
+		if (expectedAsset == null) {
+			if (other.expectedAsset != null)
+				return false;
+		} else if (!expectedAsset.equals(other.expectedAsset))
+			return false;
+		if (expectedAssetUnitPrice == null) {
+			if (other.expectedAssetUnitPrice != null)
+				return false;
+		} else if (!expectedAssetUnitPrice.equals(other.expectedAssetUnitPrice))
+			return false;
+		if (offeredAmount == null) {
+			if (other.offeredAmount != null)
+				return false;
+		} else if (!offeredAmount.equals(other.offeredAmount))
+			return false;
+		if (offeredAsset == null) {
+			if (other.offeredAsset != null)
+				return false;
+		} else if (!offeredAsset.equals(other.offeredAsset))
+			return false;
+		if (operationDate == null) {
+			if (other.operationDate != null)
+				return false;
+		} else if (!operationDate.equals(other.operationDate))
+			return false;
+		if (pair == null) {
+			if (other.pair != null)
+				return false;
+		} else if (!pair.equals(other.pair))
+			return false;
+		if (traderID == null) {
+			if (other.traderID != null)
+				return false;
+		} else if (!traderID.equals(other.traderID))
+			return false;
+		if (type != other.type)
+			return false;
+		
+		return true;
+	}
+
+	@Override
 	public int compareTo(Order other) {
 		int result = expectedAssetUnitPrice.compareTo(other.expectedAssetUnitPrice);
 

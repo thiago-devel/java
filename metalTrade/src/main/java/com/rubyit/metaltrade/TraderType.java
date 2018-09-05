@@ -5,6 +5,7 @@ import java.util.List;
 import com.rubyit.metaltrade.obj.AssetType;
 import com.rubyit.metaltrade.orderbook.Order;
 import com.rubyit.metaltrade.orderbook.OrderBook;
+import com.rubyit.metaltrade.orderbook.PairOrders;
 
 public interface TraderType {
 	String getID();
@@ -15,7 +16,7 @@ public interface TraderType {
 	List<Asset> getWalletAllAssets();
 	Order createOrder(OrderBook orderbook, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset, Double expectedAssetUnitPrice);
 	void addCreatedOrder(Order order);
-	void removeCreatedOrder(Order order);
+	void removeCreatedOrder(Order order, OrderBook orderbook, PairOrders pair);
 	void fillOrder(Order filledOrder, String createdOrderID);
 }
 

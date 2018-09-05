@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 import com.rubyit.metaltrade.obj.Pair;
 
-class PairOrders {
+public class PairOrders {
 
 	private Pair pair;
 	private Set<Order> sellOrders;
@@ -58,6 +58,16 @@ class PairOrders {
 
 	public List<Order> retrieveBuyOrders() {
 		return new ArrayList<>(buyOrders);
+	}
+
+	public Order getBidOrder() {
+		List<Order> sellOrders = retrieveSellOrders();
+		return (sellOrders.size() > 0) ? sellOrders.get(0) : null;
+	}
+	
+	public Order getAskOrder() {
+		List<Order> buyOrders = retrieveBuyOrders();
+		return (buyOrders.size() > 0) ? buyOrders.get(0) : null;
 	}
 
 	@Override

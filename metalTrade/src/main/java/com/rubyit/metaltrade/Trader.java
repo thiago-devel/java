@@ -11,6 +11,7 @@ import java.util.Map;
 import com.rubyit.metaltrade.obj.AssetType;
 import com.rubyit.metaltrade.orderbook.Order;
 import com.rubyit.metaltrade.orderbook.OrderBook;
+import com.rubyit.metaltrade.orderbook.PairOrders;
 
 public class Trader extends Account implements TraderType {
 
@@ -60,7 +61,9 @@ public class Trader extends Account implements TraderType {
 		if (myAsset.getBalance().compareTo(assetTotalAmountPrice) < 0) {
 
 			throw new RuntimeException("ERROR: unable to create order for the asset {asset=" + offeredAsset.getName()
-					+ "} with a balance {balance=" + myAsset.getBalance()
+					+ "} offering the amount {offeredAmount=" + offeredAmount
+					+ "} and expecting for {expectedAssetUnitPrice=" + expectedAssetUnitPrice
+					+ "} having a balance {balance=" + myAsset.getBalance()
 					+ "} lower than assetTotalAmountPrice {assetTotalAmountPrice=" + assetTotalAmountPrice + "}.");
 		}
 
@@ -74,10 +77,16 @@ public class Trader extends Account implements TraderType {
 		createdOrders.add(order);
 	}
 
-	public void removeCreatedOrder(Order order) {
+	public void removeCreatedOrder(Order order, OrderBook orderbook, PairOrders pair) {
 		for (Order o : createdOrders) {
 
 			if (o.getID().equals(order.getID())) {
+				
+				if (order.getType() == Order.Type.BUY) {
+					orderbook.retrievePairOrders(pair.getPair()).removeBuyOrder(order);
+				} else { 
+					orderbook.retrievePairOrders(pair.getPair()).removeSellOrder(order);
+				}
 				createdOrders.remove(o);
 				return;
 			}
