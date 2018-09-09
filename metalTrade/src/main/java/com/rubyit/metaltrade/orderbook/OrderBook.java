@@ -63,13 +63,9 @@ public class OrderBook {
 			Order.Type orderType = Order.Type.SELL;
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
 			trader.addCreatedOrder(order, this, pair);
+
 			//look to buyOrders
 			Order matchedOrder = (pair.retrieveBuyOrders().size() > 0) ? pair.getAskOrder() : null;
-			//TODO: implements real matcher || shouldNotMatchTwoOrdersIfTheBidPriceIsMajorThanTheAskPrice
-			if (matchedOrder == null || matchedOrder.getExpectedAssetUnitPrice().compareTo(order.getExpectedAssetUnitPrice()) > 0) {
-				
-				return order;
-			}
 			
 			return processMatchOrders(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair,
 					orderType, matchedOrder, order);
@@ -83,13 +79,9 @@ public class OrderBook {
 			Order.Type orderType = Order.Type.BUY;
 			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
 			trader.addCreatedOrder(order, this, pair);
+			
 			//look to sellOrders
 			Order matchedOrder = (pair.retrieveSellOrders().size() > 0) ? pair.getBidOrder() : null;
-			//TODO: implements real matcher || shouldNotMatchTwoOrdersIfTheAskPriceIsMajorThanTheBidPrice
-			if (matchedOrder == null || matchedOrder.getExpectedAssetUnitPrice().compareTo(order.getExpectedAssetUnitPrice()) > 0) {
-				
-				return order;
-			}
 			
 			return processMatchOrders(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair,
 					orderType, matchedOrder, order);
@@ -101,6 +93,11 @@ public class OrderBook {
 	private Order processMatchOrders(TraderType trader, AssetType offeredAsset, Double offeredAmount,
 			AssetType expectedAsset, Double expectedAssetUnitPrice, PairOrders pair, Order.Type orderType,
 			Order matchedOrder, Order order) {
+		
+		if (matchedOrder == null || matchedOrder.getExpectedAssetUnitPrice().compareTo(order.getExpectedAssetUnitPrice()) != 0) {
+			
+			return order;
+		}
 		
 		String otherTraderID = matchedOrder.getTraderID();
 		if (trader.getID().equals(otherTraderID)) {
