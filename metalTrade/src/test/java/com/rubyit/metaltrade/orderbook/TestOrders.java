@@ -53,9 +53,10 @@ public class TestOrders {
 		
 		TraderType renata = new MockTrader("Renata", USD);
 		MockOriginAccount mockOriginAccountGOLD = new MockOriginAccount(GOLD);
+		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
 		
-		OrderBook orderbook = execute(null, null, null, null, null, null, null, null, mc, null, mockOriginAccountGOLD,
-				null, null, null, renata, null, null);
+		execute(null, null, null, null, null, null, null, null, mc, null, mockOriginAccountGOLD,
+				null, null, null, renata, null, null, orderbook);
 		
 		AssetType offeredAsset = null;
 		Double offeredAmount = null;
@@ -204,14 +205,70 @@ public class TestOrders {
 	 * balance is already compromised with a previous created order.
 	 */
 	@Test
-	public void shouldThrowExceptionWhenCreateOrderWhenBalancePlusBlockbalanceIsNegative(){
+	public void shouldThrowExceptionWhenCreateOrderWhenBalancePlusBlockbalanceIsNotEnough(){
 		expectedEx.expect(RuntimeException.class);
 		expectedEx.expectMessage(
-				"ERROR: unable to create order for the asset {asset=USD} offering "
-				+ "the amount {offeredAmount=8.88} and expecting for "
-				+ "{expectedAssetUnitPrice=43.44} having a balance "
-				+ "{balance=260.44000} minus blocked balance {blockBalance=85.66} lower than assetTotalAmountPrice "
-				+ "{assetTotalAmountPrice=385.7472}.");
+				"ERROR: unable to create order for the asset {asset=GOLD} offering the "
+				+ "amount {offeredAmount=2.01} and expecting for {expectedAssetUnitPrice=1.0} "
+				+ "having a balance {balance=4.1100000} minus blocked balance "
+				+ "{blockedBalance=3.1100000} lower than assetTotalAmountPrice {assetTotalAmountPrice=2.010}.");
+		
+		Double usdAmount = 49.99d;
+		Double usdUnitPrice = 1.00d;
+		Double goldAmount = 4.11d;
+		Double goldUnitPriceInUSD = 40.12d;
+		Double silverAmount = 22.22d;
+		Double silverUnitPriceInUSD = 8.88d;
+		Double bronzeAmount = 147.33d;
+		Double bronzeUnitPriceInUSD = 1.62d;
+		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
+		MockOriginAccount mockOriginAccountUSD =  new MockOriginAccount(USD);
+		MockOriginAccount mockOriginAccountGOLD =  new MockOriginAccount(GOLD);
+		MockOriginAccount mockOriginAccountSILVER =  new MockOriginAccount(SILVER);
+		MockOriginAccount mockOriginAccountBRONZE =  new MockOriginAccount(BRONZE);
+		
+		TraderType thiago = new MockTrader("Thiago", USD);
+		TraderType renata = new MockTrader("Renata", USD);
+		TraderType maria =  new MockTrader("Maria", USD);
+		TraderType alice =  new MockTrader("Alice", USD);
+		
+		execute(usdAmount, usdUnitPrice, goldAmount, goldUnitPriceInUSD, silverAmount, 
+				silverUnitPriceInUSD, bronzeAmount, bronzeUnitPriceInUSD, mc, mockOriginAccountUSD,
+				mockOriginAccountGOLD, mockOriginAccountSILVER, mockOriginAccountBRONZE,
+				thiago, renata, maria, alice, orderbook);
+		
+		PairOrders goldXusdPairOrders = orderbook.retrievePairOrders(GOLDxUSD);
+		assertEquals(0, goldXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, goldXusdPairOrders.retrieveSellOrders().size());
+		PairOrders silverXusdPairOrders = orderbook.retrievePairOrders(SILVERxUSD);
+		assertEquals(0, silverXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, silverXusdPairOrders.retrieveSellOrders().size());
+		PairOrders bronzeXusdPairOrders = orderbook.retrievePairOrders(BRONZExSILVER);
+		assertEquals(0, bronzeXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, bronzeXusdPairOrders.retrieveSellOrders().size());
+		
+		System.out.println(renata.getWalletAllAssets());
+		AssetType offeredAsset = null;
+		Double offeredAmount = null;
+		AssetType expectedAsset = null;
+		Double expectedAssetUnitPrice = null;
+		
+
+		//SELL
+		offeredAsset = GOLD;
+		offeredAmount = 3.11d;
+		expectedAsset = USD;
+		expectedAssetUnitPrice = 1.00d;
+		Order order2 = renata.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		Double assetTotalAmountPriceGoldUsd = order2.getAssetTotalAmountPrice().doubleValue();
+
+		//SELL
+		offeredAsset = GOLD;
+		offeredAmount = 2.01d;
+		expectedAsset = USD;
+		expectedAssetUnitPrice = 1.00d;
+		renata.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
+		
 	}
 	
 	@Test
@@ -230,40 +287,62 @@ public class TestOrders {
 		execute();
 	}
 	
-	@Ignore
 	@Test
-	public void shouldThrowExceptionWhenCreateOrderWithNegativeBalance() {
+	public void shouldThrowExceptionWhenCreateOrderWithNotEnoughBalance() {
 		expectedEx.expect(RuntimeException.class);
 		expectedEx.expectMessage(
-				"ERROR: unable to create order for the asset {asset=USD} offering "
-				+ "the amount {offeredAmount=8.88} and expecting for "
-				+ "{expectedAssetUnitPrice=43.44} having a balance "
-				+ "{balance=260.44000} lower than assetTotalAmountPrice "
-				+ "{assetTotalAmountPrice=385.7472}.");
+				"ERROR: unable to create order for the asset {asset=GOLD} offering the "
+				+ "amount {offeredAmount=4.12} and expecting for {expectedAssetUnitPrice=1.0} "
+				+ "having a balance {balance=4.1100000} minus blocked balance "
+				+ "{blockedBalance=0} lower than assetTotalAmountPrice {assetTotalAmountPrice=4.120}.");
 		
-		Double usdAmount = null;
-		Double usdUnitPrice = null;
-		Double goldAmount = null;
-		Double goldUnitPriceInUSD = null;
-		Double silverAmount = 43.44; // it will result in an insufictient silver balance
-		Double silverUnitPriceInUSD = 8.88; // it will result in an insufictient silver balance
-		Double bronzeAmount = null;
-		Double bronzeUnitPriceInUSD = null;
+		Double usdAmount = 49.99d;
+		Double usdUnitPrice = 1.00d;
+		Double goldAmount = 4.11d;
+		Double goldUnitPriceInUSD = 40.12d;
+		Double silverAmount = 22.22d;
+		Double silverUnitPriceInUSD = 8.88d;
+		Double bronzeAmount = 147.33d;
+		Double bronzeUnitPriceInUSD = 1.62d;
+		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
+		MockOriginAccount mockOriginAccountUSD =  new MockOriginAccount(USD);
+		MockOriginAccount mockOriginAccountGOLD =  new MockOriginAccount(GOLD);
+		MockOriginAccount mockOriginAccountSILVER =  new MockOriginAccount(SILVER);
+		MockOriginAccount mockOriginAccountBRONZE =  new MockOriginAccount(BRONZE);
 		
-		MockOriginAccount mockOriginAccountUSD = null;
-		MockOriginAccount mockOriginAccountGOLD = null;
-		MockOriginAccount mockOriginAccountSILVER = null;
-		MockOriginAccount mockOriginAccountBRONZE = null;
+		TraderType thiago = new MockTrader("Thiago", USD);
+		TraderType renata = new MockTrader("Renata", USD);
+		TraderType maria =  new MockTrader("Maria", USD);
+		TraderType alice =  new MockTrader("Alice", USD);
 		
-		TraderType thiago = null;
-		TraderType renata = null;
-		TraderType maria = null;
-		TraderType alice = null;
-				
 		execute(usdAmount, usdUnitPrice, goldAmount, goldUnitPriceInUSD, silverAmount, 
 				silverUnitPriceInUSD, bronzeAmount, bronzeUnitPriceInUSD, mc, mockOriginAccountUSD,
 				mockOriginAccountGOLD, mockOriginAccountSILVER, mockOriginAccountBRONZE,
-				thiago, renata, maria, alice);
+				thiago, renata, maria, alice, orderbook);
+		
+		PairOrders goldXusdPairOrders = orderbook.retrievePairOrders(GOLDxUSD);
+		assertEquals(0, goldXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, goldXusdPairOrders.retrieveSellOrders().size());
+		PairOrders silverXusdPairOrders = orderbook.retrievePairOrders(SILVERxUSD);
+		assertEquals(0, silverXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, silverXusdPairOrders.retrieveSellOrders().size());
+		PairOrders bronzeXusdPairOrders = orderbook.retrievePairOrders(BRONZExSILVER);
+		assertEquals(0, bronzeXusdPairOrders.retrieveBuyOrders().size());
+		assertEquals(0, bronzeXusdPairOrders.retrieveSellOrders().size());
+		
+		System.out.println(renata.getWalletAllAssets());
+		AssetType offeredAsset = null;
+		Double offeredAmount = null;
+		AssetType expectedAsset = null;
+		Double expectedAssetUnitPrice = null;
+		
+
+		//SELL
+		offeredAsset = GOLD;
+		offeredAmount = 4.12d;
+		expectedAsset = USD;
+		expectedAssetUnitPrice = 1.00d;
+		renata.createOrder(orderbook, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice);
 	}
 	
 	private OrderBook execute() {
@@ -276,7 +355,7 @@ public class TestOrders {
 		Double silverUnitPriceInUSD = 8.88d;
 		Double bronzeAmount = 147.33d;
 		Double bronzeUnitPriceInUSD = 1.62d;
-		
+		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
 		MockOriginAccount mockOriginAccountUSD =  new MockOriginAccount(USD);
 		MockOriginAccount mockOriginAccountGOLD =  new MockOriginAccount(GOLD);
 		MockOriginAccount mockOriginAccountSILVER =  new MockOriginAccount(SILVER);
@@ -290,7 +369,7 @@ public class TestOrders {
 		return execute(usdAmount, usdUnitPrice, goldAmount, goldUnitPriceInUSD, silverAmount, 
 				silverUnitPriceInUSD, bronzeAmount, bronzeUnitPriceInUSD, mc, mockOriginAccountUSD,
 				mockOriginAccountGOLD, mockOriginAccountSILVER, mockOriginAccountBRONZE,
-				thiago, renata, maria, alice);
+				thiago, renata, maria, alice, orderbook);
 	}
 	
 	private OrderBook execute(Double usdAmount,  Double usdUnitPrice,  Double goldAmount,
@@ -298,7 +377,7 @@ public class TestOrders {
 			 Double bronzeAmount,  Double bronzeUnitPriceInUSD,  MathContext mc,
 			 MockOriginAccount mockOriginAccountUSD, MockOriginAccount mockOriginAccountGOLD,
 			 MockOriginAccount mockOriginAccountSILVER, MockOriginAccount mockOriginAccountBRONZE,
-			 TraderType thiago, TraderType renata, TraderType maria, TraderType alice) {
+			 TraderType thiago, TraderType renata, TraderType maria, TraderType alice, OrderBook orderbook) {
 		
 		usdAmount = (usdAmount == null) ? 49.99 : usdAmount;
 		usdUnitPrice = (usdUnitPrice == null) ? 1.00 : usdUnitPrice;
@@ -346,7 +425,6 @@ public class TestOrders {
 		assertEquals(0, alice.getWalletAsset(USD).getBalance().compareTo(BigDecimal.valueOf(MockTrader.INITIAL_BALANCE)));
 		
 		
-		OrderBook orderbook = new OrderBook(GOLDxUSD, SILVERxUSD, BRONZExUSD, GOLDxSILVER, BRONZExSILVER);
 		AssetType offeredAsset = null;
 		Double offeredAmount = null;
 		AssetType expectedAsset = null;

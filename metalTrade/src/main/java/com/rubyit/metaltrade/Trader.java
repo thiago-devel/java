@@ -58,13 +58,21 @@ public class Trader extends Account implements TraderType {
 		final BigDecimal assetTotalAmountPrice = BigDecimal.valueOf(offeredAmount)
 				.multiply(BigDecimal.valueOf(expectedAssetUnitPrice));
 		final Asset myAsset = myWallet.getAsset(offeredAsset);
-		if (myAsset.getBalance().compareTo(assetTotalAmountPrice) < 0) {
+		final BigDecimal balances = myAsset.getBalance().subtract(myAsset.getBlockedBalance());
+		if (balances.compareTo(assetTotalAmountPrice) < 0) {
 
-			throw new RuntimeException("ERROR: unable to create order for the asset {asset=" + offeredAsset.getName()
+			/*throw new RuntimeException("ERROR: unable to create order for the asset {asset=" + offeredAsset.getName()
 					+ "} offering the amount {offeredAmount=" + offeredAmount
 					+ "} and expecting for {expectedAssetUnitPrice=" + expectedAssetUnitPrice
 					+ "} having a balance {balance=" + myAsset.getBalance()
-					+ "} lower than assetTotalAmountPrice {assetTotalAmountPrice=" + assetTotalAmountPrice + "}.");
+					+ "} lower than assetTotalAmountPrice {assetTotalAmountPrice=" + assetTotalAmountPrice + "}.");*/
+			throw new RuntimeException("ERROR: unable to create order for the asset {asset="
+					+ offeredAsset.getName() + "} offering the amount {offeredAmount="
+					+ offeredAmount +"} and expecting for {expectedAssetUnitPrice="
+					+ expectedAssetUnitPrice + "} having a balance "
+					+ "{balance=" + myAsset.getBalance() + "} minus blocked balance "
+					+ "{blockedBalance=" + myAsset.getBlockedBalance() + "} lower than assetTotalAmountPrice "
+					+ "{assetTotalAmountPrice=" + assetTotalAmountPrice + "}.");
 		}
 
 		Order createdOrder = orderbook.createOrder(this, offeredAsset, offeredAmount, expectedAsset,
@@ -79,6 +87,7 @@ public class Trader extends Account implements TraderType {
 		} else { 
 			orderbook.retrievePairOrders(pair.getPair()).addSellOrder(order);
 		}
+		myWallet.getAsset(order.getOfferedAsset()).blockBalance(order.getOfferedAmount());
 		createdOrders.add(order);
 	}
 
@@ -92,6 +101,7 @@ public class Trader extends Account implements TraderType {
 				} else { 
 					orderbook.retrievePairOrders(pair.getPair()).removeSellOrder(order);
 				}
+				myWallet.getAsset(order.getOfferedAsset()).unblockBalance(order.getOfferedAmount());
 				createdOrders.remove(o);
 				return;
 			}

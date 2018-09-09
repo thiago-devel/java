@@ -14,12 +14,14 @@ public class Asset {
 	
 	private AssetType asset;
 	private BigDecimal balance;
+	private BigDecimal blockedBalance;
 	transient private Lock balanceChangeLock;
 	transient private Condition sufficientFundsCondition;
 	
 	public Asset(AssetType asset) {
 		this.asset = asset;
 		balance = BigDecimal.ZERO;
+		blockedBalance = BigDecimal.ZERO;
 		balanceChangeLock = new ReentrantLock();
 		sufficientFundsCondition = balanceChangeLock.newCondition();
 	}
@@ -52,14 +54,27 @@ public class Asset {
 	public BigDecimal getBalance() {
 		return balance;
 	}
+	public BigDecimal getBlockedBalance() {
+		return blockedBalance;
+	}
 	public AssetType getAsset() {
 		return asset;
 	}
+	
+	public void blockBalance(final BigDecimal amountToBlock) {
+		blockedBalance = blockedBalance.add(amountToBlock); 
+	}
+	
+	public void unblockBalance(final BigDecimal amountToUnblock) {
+		blockedBalance = blockedBalance.subtract(amountToUnblock); 
+	}
+	
 	@Override
 	public String toString() {
 		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("assetType", asset);
 		json.put("balance", balance);
+		json.put("blockedBalance", blockedBalance);
 		return getGson().toJson(json);
 	}
 }
