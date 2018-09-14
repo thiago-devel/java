@@ -1,10 +1,9 @@
 package com.rubyit.metaltrade.orderbook;
 
 import static com.rubyit.metaltrade.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.formatNumber;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -24,14 +23,14 @@ public class Order implements Comparable<Order> {
 	private AssetType expectedAsset;
 	private BigDecimal expectedAssetUnitPrice;
 	private BigDecimal assetTotalAmountPrice;
-	transient private MathContext mc;
 	private Pair pair;
 	private Type type;
 	transient private DateTimeFormatter sdf;
 	private LocalDateTime operationDate;
+	private TransactionFee transactionFee; 
 
 	public Order(TraderType trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
-			Double expectedAssetUnitPrice, Pair pair, Type type) {
+			Double expectedAssetUnitPrice, Pair pair, Type type, TransactionFee transactionFee) {
 
 		if (trader == null || offeredAsset == null || offeredAmount == null || expectedAsset == null
 				|| expectedAssetUnitPrice == null || pair == null || type == null) {
@@ -43,15 +42,15 @@ public class Order implements Comparable<Order> {
 		ID = UUID.randomUUID().toString();
 		traderID = trader.getID();
 		this.offeredAsset = offeredAsset;
-		mc = new MathContext(8, RoundingMode.HALF_EVEN);
-		this.offeredAmount = new BigDecimal(offeredAmount, mc);
+		this.offeredAmount = formatNumber(offeredAmount);
 		this.expectedAsset = expectedAsset;
-		this.expectedAssetUnitPrice = new BigDecimal(expectedAssetUnitPrice, mc);
-		this.assetTotalAmountPrice = this.offeredAmount.multiply(this.expectedAssetUnitPrice, mc);
+		this.expectedAssetUnitPrice = formatNumber(expectedAssetUnitPrice);
+		this.assetTotalAmountPrice = formatNumber(this.offeredAmount.multiply(this.expectedAssetUnitPrice));
 		this.pair = pair;
 		this.type = type;
 		sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		operationDate = LocalDateTime.now();
+		this.transactionFee = transactionFee;
 	}
 
 	public String getID() {
@@ -93,6 +92,10 @@ public class Order implements Comparable<Order> {
 	public LocalDateTime getOperationDate() {
 		return operationDate;
 	}
+	
+	public TransactionFee getTransactionFee() {
+		return transactionFee;
+	}
 
 	@Override
 	public int hashCode() {
@@ -107,8 +110,8 @@ public class Order implements Comparable<Order> {
 		result = prime * result + ((operationDate == null) ? 0 : operationDate.hashCode());
 		result = prime * result + ((pair == null) ? 0 : pair.hashCode());
 		result = prime * result + ((traderID == null) ? 0 : traderID.hashCode());
+		result = prime * result + ((transactionFee == null) ? 0 : transactionFee.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		
 		return result;
 	}
 
@@ -166,9 +169,13 @@ public class Order implements Comparable<Order> {
 				return false;
 		} else if (!traderID.equals(other.traderID))
 			return false;
+		if (transactionFee == null) {
+			if (other.transactionFee != null)
+				return false;
+		} else if (!transactionFee.equals(other.transactionFee))
+			return false;
 		if (type != other.type)
 			return false;
-		
 		return true;
 	}
 
@@ -192,6 +199,7 @@ public class Order implements Comparable<Order> {
 		json.put("pair", pair);
 		json.put("type", type);
 		json.put("operationDate", sdf.format(operationDate));
+		json.put("transactionFee", transactionFee);
 		return getGson().toJson(json);
 	}
 

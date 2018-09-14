@@ -13,6 +13,12 @@ import com.rubyit.metaltrade.Asset;
 import com.rubyit.metaltrade.Trader;
 import com.rubyit.metaltrade.obj.AssetType;
 
+/**
+ * As a role, a Mock account is the only one that
+ *  can give balance to itseft. 
+ * @author mineruser
+ *
+ */
 final class MockTrader extends Trader {
 	
 	public static final Double INITIAL_BALANCE = 260.44;

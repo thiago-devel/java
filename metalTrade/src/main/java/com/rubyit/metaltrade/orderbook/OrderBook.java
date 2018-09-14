@@ -1,12 +1,16 @@
 package com.rubyit.metaltrade.orderbook;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.rubyit.metaltrade.OrderBookWallet;
 import com.rubyit.metaltrade.TraderType;
 import com.rubyit.metaltrade.obj.AssetType;
 import com.rubyit.metaltrade.obj.Pair;
@@ -15,18 +19,55 @@ public class OrderBook {
 	
 	private Set<PairOrders> pairs;
 	private Set<TraderType> traders;
+	private OrderBookWallet bookwallet;
+	private TransactionFee transactionFee;
 	transient private Lock pairChangeLock;
 	
-	public OrderBook(Pair... pairs) {
+	public OrderBook(AssetType transactionFeeAssetType, Pair... pairs) {
 		if (pairs == null || pairs.length == 0) {
 			throw new RuntimeException("ERROR: unable to create a orderbook without at least one Pair");
 		}
+		this.bookwallet = new OrderBookWallet();
 		this.pairs = new HashSet<>();
 		this.traders = new HashSet<>();
+		this.transactionFee = new TransactionFee(0d, transactionFeeAssetType); // Fee ZERO
 		for (Pair pair : pairs) {
 			this.pairs.add(new PairOrders(pair));
 		}
 		pairChangeLock = new ReentrantLock();
+	}
+	
+	public OrderBook(AssetType transactionFeeAssetType, Double transactionFeeValue, Pair... pairs) {
+		this(transactionFeeAssetType, pairs);
+		this.transactionFee = new TransactionFee(transactionFeeValue, transactionFeeAssetType);
+	}
+	
+	public TransactionFee retrieveTransactionFee() {
+		return transactionFee;
+	}
+	
+	public List<TraderType> retrieveAllTraders() {
+		return new ArrayList<>(traders);
+	}
+	
+	public TraderType retrieveTrader(String traderID) {
+		for (TraderType trader : traders) {
+			
+			if (trader.getID().equals(traderID)) {
+				return trader;
+			}
+		}
+		return null;
+	}
+	
+	public TraderType retrieveTrader(Optional<String> traderName) {
+		for (TraderType trader : traders) {
+			
+			if (trader.getName().equals(traderName.get())) {
+				return trader;
+			}
+		}
+		return null;
 	}
 
 	public Order createOrder(TraderType trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
@@ -61,7 +102,7 @@ public class OrderBook {
 			
 			traders.add(trader);
 			Order.Type orderType = Order.Type.SELL;
-			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
+			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType, transactionFee);
 			trader.addCreatedOrder(order, this, pair);
 
 			//look to buyOrders
@@ -77,7 +118,7 @@ public class OrderBook {
 			
 			traders.add(trader);
 			Order.Type orderType = Order.Type.BUY;
-			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType);
+			order = new Order(trader, offeredAsset, offeredAmount, expectedAsset, expectedAssetUnitPrice, pair.getPair(), orderType, transactionFee);
 			trader.addCreatedOrder(order, this, pair);
 			
 			//look to sellOrders
@@ -109,6 +150,8 @@ public class OrderBook {
 			if (otherTrader.getID().equals(otherTraderID)) {
 				trader.fillOrder(matchedOrder, order.getID());
 				otherTrader.fillOrder(order, matchedOrder.getID());
+				bookwallet.payTransactionFee(order);
+				bookwallet.payTransactionFee(matchedOrder);
 				trader.removeCreatedOrder(order, this, pair);
 				otherTrader.removeCreatedOrder(matchedOrder, this, pair);
 			}
@@ -186,6 +229,13 @@ public class OrderBook {
 		return findPairBy(Optional.of(pair.getPairName()));
 	}
 	
+	public AssetType retrieveTransactionFeeAssetType() {
+		return transactionFee.getTransactionFeeAssetType();
+	}
+	
+	public BigDecimal retrieveTransactionFeeValue() {
+		return transactionFee.getTransactionFeeValue();
+	}
 }
 
 
