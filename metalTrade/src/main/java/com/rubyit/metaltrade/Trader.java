@@ -63,9 +63,9 @@ public class Trader extends Account implements TraderType {
 			throw new RuntimeException("ERROR: unable to create order. Wallet "
 					+ "has not enough fee asset {feeAssetName="
 					+ orderbook.retrieveTransactionFeeAssetType().getName()
-					+ "} balance. The minimal balance need to be major than "
-					+ "{feeAssetValue=" + orderbook.retrieveTransactionFeeValue()
-					+ "} but was {feeAssetBalances=" + feeAssetBalances + "}");
+					+ "} balance. The minimal balance needed must to be major than {feeAssetValue="
+					+ orderbook.retrieveTransactionFeeValue().toPlainString()
+					+ "} but was {feeAssetBalances=" + feeAssetBalances.toPlainString() + "}");
 		}
 		
 		final BigDecimal assetTotalAmountPrice = BigDecimal.valueOf(offeredAmount)
@@ -124,7 +124,7 @@ public class Trader extends Account implements TraderType {
 		}
 	}
 
-	public void fillOrder(Order filledOrder, String createdOrderID) {
+	public void fillOrder(Order filledOrder) {
 		
 		transactionFeePayment(filledOrder);
 		orderPayment(filledOrder);
@@ -135,10 +135,11 @@ public class Trader extends Account implements TraderType {
 	private void orderPayment(Order filledOrder) {
 
 		AssetType offeredAsset = filledOrder.getOfferedAsset();
-		BigDecimal offeredAmount = filledOrder.getOfferedAmount();
 		AssetType expectedAsset = filledOrder.getExpectedAsset();
+		BigDecimal offeredAmount = filledOrder.getOfferedAmount();
+		BigDecimal expectedUnitPrice = filledOrder.getExpectedAssetUnitPrice();
 		BigDecimal totalAmountPrice = filledOrder.getAssetTotalAmountPrice();
-		
+
 		// perform withdraw and deposit
 		performWithdrawAndDeposit(offeredAsset, offeredAmount, expectedAsset, totalAmountPrice);
 	}
@@ -151,6 +152,7 @@ public class Trader extends Account implements TraderType {
 		AssetType offeredAsset = filledOrder.getTransactionFee().getTransactionFeeAssetType();
 		BigDecimal offeredAmount = filledOrder.getTransactionFee().getTransactionFeeValue();
 		AssetType expectedAsset = filledOrder.getTransactionFee().getTransactionFeeAssetType();
+		BigDecimal expectedUnitPrice = filledOrder.getExpectedAssetUnitPrice();
 		BigDecimal totalAmountPrice = formatNumber(filledOrder.getTransactionFee().getTransactionFeeValue().add(filledOrder.getTransactionFee().getTransactionFeeValue()));
 		
 		// perform withdraw and deposit

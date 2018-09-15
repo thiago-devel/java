@@ -1,5 +1,7 @@
 package com.rubyit.metaltrade;
+
 import static com.rubyit.metaltrade.Utils.getGson;
+import static com.rubyit.metaltrade.Utils.formatNumber;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -52,10 +54,10 @@ public class Asset {
 		}
 	}
 	public BigDecimal getBalance() {
-		return balance;
+		return formatNumber(balance);
 	}
 	public BigDecimal getBlockedBalance() {
-		return blockedBalance;
+		return formatNumber(blockedBalance);
 	}
 	public AssetType getAsset() {
 		return asset;
@@ -73,8 +75,8 @@ public class Asset {
 	public String toString() {
 		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("assetType", asset);
-		json.put("balance", balance);
-		json.put("blockedBalance", blockedBalance);
+		json.put("balance", getBalance().toPlainString());
+		json.put("blockedBalance", getBlockedBalance().toPlainString());
 		return getGson().toJson(json);
 	}
 }

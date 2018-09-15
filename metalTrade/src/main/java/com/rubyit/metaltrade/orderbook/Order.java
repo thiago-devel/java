@@ -42,10 +42,17 @@ public class Order implements Comparable<Order> {
 		ID = UUID.randomUUID().toString();
 		traderID = trader.getID();
 		this.offeredAsset = offeredAsset;
-		this.offeredAmount = formatNumber(offeredAmount);
-		this.expectedAsset = expectedAsset;
 		this.expectedAssetUnitPrice = formatNumber(expectedAssetUnitPrice);
-		this.assetTotalAmountPrice = formatNumber(this.offeredAmount.multiply(this.expectedAssetUnitPrice));
+		this.expectedAsset = expectedAsset;
+		
+		if (type.equals(Order.Type.SELL) ) {
+			this.offeredAmount = formatNumber(offeredAmount);
+			this.assetTotalAmountPrice = formatNumber(this.offeredAmount.multiply(this.expectedAssetUnitPrice));
+		} else {
+			this.offeredAmount = formatNumber(formatNumber(offeredAmount).multiply(this.expectedAssetUnitPrice));
+			this.assetTotalAmountPrice = formatNumber(offeredAmount);
+		}
+		
 		this.pair = pair;
 		this.type = type;
 		sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
@@ -66,7 +73,7 @@ public class Order implements Comparable<Order> {
 	}
 
 	public BigDecimal getOfferedAmount() {
-		return offeredAmount;
+		return formatNumber(offeredAmount);
 	}
 
 	public AssetType getExpectedAsset() {
@@ -74,11 +81,11 @@ public class Order implements Comparable<Order> {
 	}
 
 	public BigDecimal getExpectedAssetUnitPrice() {
-		return expectedAssetUnitPrice;
+		return formatNumber(expectedAssetUnitPrice);
 	}
 
 	public BigDecimal getAssetTotalAmountPrice() {
-		return assetTotalAmountPrice;
+		return formatNumber(assetTotalAmountPrice);
 	}
 
 	public Pair getPair() {
@@ -192,10 +199,10 @@ public class Order implements Comparable<Order> {
 		json.put("ID", ID);
 		json.put("traderID", traderID);
 		json.put("offeredAsset", offeredAsset);
-		json.put("offeredAmount", offeredAmount);
-		json.put("expectedAsset", expectedAsset);
-		json.put("expectedAssetUnitPrice", expectedAssetUnitPrice);
-		json.put("assetTotalAmountPrice", assetTotalAmountPrice);
+		json.put("offeredAmount", getOfferedAmount().toPlainString());
+		json.put("expectedAsset", getExpectedAsset());
+		json.put("expectedAssetUnitPrice", getExpectedAssetUnitPrice().toPlainString());
+		json.put("assetTotalAmountPrice", getAssetTotalAmountPrice().toPlainString());
 		json.put("pair", pair);
 		json.put("type", type);
 		json.put("operationDate", sdf.format(operationDate));

@@ -1,5 +1,7 @@
 package com.rubyit.metaltrade.orderbook;
 
+import static com.rubyit.metaltrade.Utils.formatNumber;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,8 +150,17 @@ public class OrderBook {
 		for (TraderType otherTrader : traders) {
 			
 			if (otherTrader.getID().equals(otherTraderID)) {
-				trader.fillOrder(matchedOrder, order.getID());
-				otherTrader.fillOrder(order, matchedOrder.getID());
+				
+				BigDecimal localOfferedAmount = formatNumber(matchedOrder.getOfferedAmount());
+				BigDecimal localExpectedUnitPrice = formatNumber(matchedOrder.getExpectedAssetUnitPrice());
+				BigDecimal localTotalAmountPrice = formatNumber(matchedOrder.getAssetTotalAmountPrice());
+				trader.fillOrder(matchedOrder);
+				
+				localOfferedAmount = formatNumber(order.getOfferedAmount());
+				localExpectedUnitPrice = formatNumber(order.getExpectedAssetUnitPrice());
+				localTotalAmountPrice = formatNumber(order.getAssetTotalAmountPrice());
+				otherTrader.fillOrder(order);
+				
 				bookwallet.payTransactionFee(order);
 				bookwallet.payTransactionFee(matchedOrder);
 				trader.removeCreatedOrder(order, this, pair);

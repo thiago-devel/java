@@ -21,7 +21,7 @@ public class TransactionFee {
 	}
 
 	public BigDecimal getTransactionFeeValue() {
-		return transactionFeeValue;
+		return formatNumber(transactionFeeValue);
 	}
 
 
@@ -74,7 +74,7 @@ public class TransactionFee {
 	public String toString() {
 		Map<String, Object> json = new LinkedHashMap<String, Object>();
 		json.put("transactionFeeAssetType", transactionFeeAssetType);
-		json.put("transactionFeeValue", transactionFeeValue);
+		json.put("transactionFeeValue", getTransactionFeeValue().toPlainString());
 		return getGson().toJson(json);
 	}
 }
