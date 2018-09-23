@@ -213,4 +213,8 @@ public class Order implements Comparable<Order> {
 	public enum Type {
 		BUY, SELL;
 	}
+	
+	public enum Status {
+		CREATED, PARTIAL, FILLED, CANCELED
+	}
 }
