@@ -109,17 +109,28 @@ public class TestOrders {
 		
 		OrderBook orderbook = new OrderBook(USD, usdBaseTranactionFee, GOLDxUSD);
 		
-		Order renataBuyOrder = Renata.createOrder(orderbook, USD, renataOffereddUsdAmount, GOLD, renataOfferedGoldUsdPrice); 
+		Order renataBuyOrder = Renata.createOrder(orderbook, USD, renataOffereddUsdAmount, GOLD, renataOfferedGoldUsdPrice);
+		assertEquals(Order.Status.CREATED, renataBuyOrder.getStatus());
 		Order mockgoldSellOrder = MockGold.createOrder(orderbook, GOLD, mockgoOfferedldGoldAmount, USD, mockgoldOfferedGoldUsdPrice);
+		
+		assertEquals(Order.Status.PARTIAL, mockgoldSellOrder.getStatus());
+		assertEquals(Order.Status.FILLED, renataBuyOrder.getStatus());
 		
 		assertEquals(expectedRenataGoldAmount, Renata.getWalletAsset(GOLD).getBalance());//0.14330900
 		assertEquals(expectedRenataUsdAmount, Renata.getWalletAsset(USD).getBalance());//250.66844292
 		assertEquals(formatNumber(0d), Renata.getWalletAsset(GOLD).getBlockedBalance());
 		assertEquals(formatNumber(0d), Renata.getWalletAsset(USD).getBlockedBalance());
-		assertEquals(expectedMockgoldGoldAmount, MockGold.getWalletAsset(GOLD).getBalance());//499.75669100
+		assertEquals(expectedMockgoldGoldAmount, MockGold.getWalletAsset(GOLD).getBalance());//499.90000000
+		BigDecimal expectedMockgoldGoldBlockedBalance = formatNumber(commomAmount.subtract(expectedRenataGoldAmount));
+		assertEquals(expectedMockgoldGoldBlockedBalance, MockGold.getWalletAsset(GOLD).getBlockedBalance());//0.10000000
 		assertEquals(expectedMockgoldUsdAmount, MockGold.getWalletAsset(USD).getBalance());//509.75155708
 		assertEquals(formatNumber(0d), MockGold.getWalletAsset(GOLD).getBlockedBalance());
 		assertEquals(formatNumber(0d), MockGold.getWalletAsset(USD).getBlockedBalance());
+	}
+	
+	@Test
+	public void shouldAnTraderBeAbleToCancelAnCreatedOrder(){
+		throw new UnsupportedOperationException("Not yet Implemented test.");
 	}
 	
 	@Test
@@ -408,10 +419,11 @@ public class TestOrders {
 	public void shouldThrowExceptionWhenCreateOrderWithNotEnoughBalance() {
 		expectedEx.expect(RuntimeException.class);
 		expectedEx.expectMessage(
-				"ERROR: unable to create order for the asset {asset=GOLD} offering the "
-				+ "amount {offeredAmount=4.12} and expecting for {expectedAssetUnitPrice=1.0} "
-				+ "having a balance {balance=4.1100000} minus blocked balance "
-				+ "{blockedBalance=0} lower than assetTotalAmountPrice {assetTotalAmountPrice=4.120}.");
+				"ERROR: unable to create order for the asset {asset=GOLD} "
+				+ "offering the amount {offeredAmount=4.12} and expecting "
+				+ "for {expectedAssetUnitPrice=1.0} having a balance "
+				+ "{balance=4.1100000} minus blocked balance {blockedBalance=0} "
+				+ "lower than assetTotalAmountPrice {assetTotalAmountPrice=4.120}.");
 		
 		Double usdAmount = 49.99d;
 		Double usdUnitPrice = 1.00d;

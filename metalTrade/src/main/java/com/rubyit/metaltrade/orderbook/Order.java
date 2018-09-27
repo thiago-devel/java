@@ -28,6 +28,7 @@ public class Order implements Comparable<Order> {
 	transient private DateTimeFormatter sdf;
 	private LocalDateTime operationDate;
 	private TransactionFee transactionFee; 
+	private Status status;
 
 	public Order(TraderType trader, AssetType offeredAsset, Double offeredAmount, AssetType expectedAsset,
 			Double expectedAssetUnitPrice, Pair pair, Type type, TransactionFee transactionFee) {
@@ -58,6 +59,23 @@ public class Order implements Comparable<Order> {
 		sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		operationDate = LocalDateTime.now();
 		this.transactionFee = transactionFee;
+		this.status = Status.CREATED;
+	}
+	
+	public Order(Order order, Status status) {
+		this.ID = order.ID;
+		this.traderID = order.traderID;
+		this.offeredAsset = order.offeredAsset;
+		this.expectedAssetUnitPrice = order.expectedAssetUnitPrice;
+		this.expectedAsset = order.expectedAsset;
+		this.offeredAmount = order.offeredAmount;
+		this.assetTotalAmountPrice = order.assetTotalAmountPrice;
+		this.pair = order.pair;
+		this.type = order.type;
+		this.sdf = order.sdf;
+		this.operationDate = order.operationDate; 
+		this.transactionFee = order.transactionFee;
+		this.status = status;
 	}
 
 	public String getID() {
@@ -192,6 +210,10 @@ public class Order implements Comparable<Order> {
 
 		return (result != 0) ? result : operationDate.compareTo(other.operationDate);
 	}
+	
+	public Status getStatus() {
+		return status;
+	}
 
 	@Override
 	public String toString() {
@@ -207,6 +229,7 @@ public class Order implements Comparable<Order> {
 		json.put("type", type);
 		json.put("operationDate", sdf.format(operationDate));
 		json.put("transactionFee", transactionFee);
+		json.put("status", status);		
 		return getGson().toJson(json);
 	}
 

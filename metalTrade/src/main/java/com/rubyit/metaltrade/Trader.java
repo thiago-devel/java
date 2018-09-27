@@ -79,7 +79,7 @@ public class Trader extends Account implements TraderType {
 					+ offeredAmount +"} and expecting for {expectedAssetUnitPrice="
 					+ expectedAssetUnitPrice + "} having a balance "
 					+ "{balance=" + myAsset.getBalance() + "} minus blocked balance "
-					+ "{blockedBalance=" + myAsset.getBlockedBalance() + "} lower than assetTotalAmountPrice "
+					+ "{blockedBalance=" + myAsset.getBlockedBalance().toPlainString() + "} lower than assetTotalAmountPrice "
 					+ "{assetTotalAmountPrice=" + assetTotalAmountPrice + "}.");
 		}
 
