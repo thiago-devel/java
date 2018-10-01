@@ -151,24 +151,53 @@ public class OrderBook {
 			
 			if (otherTrader.getID().equals(otherTraderID)) {
 				
-				BigDecimal localOfferedAmount = formatNumber(matchedOrder.getOfferedAmount());
-				BigDecimal localExpectedUnitPrice = formatNumber(matchedOrder.getExpectedAssetUnitPrice());
-				BigDecimal localTotalAmountPrice = formatNumber(matchedOrder.getAssetTotalAmountPrice());
-				trader.fillOrder(matchedOrder);
+				BigDecimal moTotalAmountPrice = formatNumber(matchedOrder.getAssetTotalAmountPrice());
+				BigDecimal oOfferedAmount = formatNumber(order.getOfferedAmount());
 				
-				localOfferedAmount = formatNumber(order.getOfferedAmount());
-				localExpectedUnitPrice = formatNumber(order.getExpectedAssetUnitPrice());
-				localTotalAmountPrice = formatNumber(order.getAssetTotalAmountPrice());
-				otherTrader.fillOrder(order);
+				if (moTotalAmountPrice.compareTo(oOfferedAmount) == 0) {
 				
-				bookwallet.payTransactionFee(order);
-				bookwallet.payTransactionFee(matchedOrder);
-				trader.removeCreatedOrder(order, this, pair);
-				otherTrader.removeCreatedOrder(matchedOrder, this, pair);
+					performPerfectMatch(trader, pair, matchedOrder, order, otherTrader);
+				} else if (moTotalAmountPrice.compareTo(oOfferedAmount) > 0) {
+					// to change matchedOrder from Created/Filled to Partial
+					BigDecimal localOfferedAmount = formatNumber(matchedOrder.getOfferedAmount());
+					BigDecimal localExpectedUnitPrice = formatNumber(matchedOrder.getExpectedAssetUnitPrice());
+					BigDecimal localTotalAmountPrice = formatNumber(matchedOrder.getAssetTotalAmountPrice());
+					trader.fillOrder(matchedOrder);
+					
+					// to change order from Created to Filled
+					localOfferedAmount = formatNumber(order.getOfferedAmount());
+					localExpectedUnitPrice = formatNumber(order.getExpectedAssetUnitPrice());
+					localTotalAmountPrice = formatNumber(order.getAssetTotalAmountPrice());
+					otherTrader.fillOrder(order);
+					
+					bookwallet.payTransactionFee(order);
+					bookwallet.payTransactionFee(matchedOrder);
+					trader.removeCreatedOrder(order, this, pair);
+					otherTrader.removeCreatedOrder(matchedOrder, this, pair);
+				}
 			}
 		}
 		
 		return order;
+	}
+
+	private void performPerfectMatch(TraderType trader, PairOrders pair, Order matchedOrder, Order order,
+			TraderType otherTrader) {
+		
+		BigDecimal localOfferedAmount = formatNumber(matchedOrder.getOfferedAmount());
+		BigDecimal localExpectedUnitPrice = formatNumber(matchedOrder.getExpectedAssetUnitPrice());
+		BigDecimal localTotalAmountPrice = formatNumber(matchedOrder.getAssetTotalAmountPrice());
+		trader.fillOrder(matchedOrder);
+		
+		localOfferedAmount = formatNumber(order.getOfferedAmount());
+		localExpectedUnitPrice = formatNumber(order.getExpectedAssetUnitPrice());
+		localTotalAmountPrice = formatNumber(order.getAssetTotalAmountPrice());
+		otherTrader.fillOrder(order);
+		
+		bookwallet.payTransactionFee(order);
+		bookwallet.payTransactionFee(matchedOrder);
+		trader.removeCreatedOrder(order, this, pair);
+		otherTrader.removeCreatedOrder(matchedOrder, this, pair);
 	}
 	
 	public PairOrders findPairBy(String offeredAssetID, String expectedAssetID) {

@@ -100,18 +100,18 @@ public class TestOrders {
 		BigDecimal commomGOLDxUSD = formatNumber(9.76155708d);
 		Double renataOffereddUsdAmount = commomAmount.doubleValue();
 		Double renataOfferedGoldUsdPrice = commomGoldUsdPrice.doubleValue();
-		Double mockgoOfferedldGoldAmount = commomAmount.doubleValue();
+		Double mockgoldOfferedGoldAmount = commomAmount.doubleValue();
 		Double mockgoldOfferedGoldUsdPrice = commomGoldUsdPrice.doubleValue();
 		BigDecimal expectedRenataGoldAmount = formatNumber(0.14330900d);
 		BigDecimal expectedRenataUsdAmount = formatNumber(renataInitialUSDBalance.subtract(commomGOLDxUSD).subtract(formatNumber(usdBaseTranactionFee)));
-		BigDecimal expectedMockgoldGoldAmount = formatNumber(mockgoldInitialGOLDBalance.subtract(formatNumber(mockgoOfferedldGoldAmount)));
+		BigDecimal expectedMockgoldGoldAmount = formatNumber(mockgoldInitialGOLDBalance.subtract(formatNumber(mockgoldOfferedGoldAmount)));
 		BigDecimal expectedMockgoldUsdAmount = formatNumber(mockgoldInitialUSDBalance.add(commomGOLDxUSD).subtract(formatNumber(usdBaseTranactionFee)));
 		
 		OrderBook orderbook = new OrderBook(USD, usdBaseTranactionFee, GOLDxUSD);
 		
 		Order renataBuyOrder = Renata.createOrder(orderbook, USD, renataOffereddUsdAmount, GOLD, renataOfferedGoldUsdPrice);
 		assertEquals(Order.Status.CREATED, renataBuyOrder.getStatus());
-		Order mockgoldSellOrder = MockGold.createOrder(orderbook, GOLD, mockgoOfferedldGoldAmount, USD, mockgoldOfferedGoldUsdPrice);
+		Order mockgoldSellOrder = MockGold.createOrder(orderbook, GOLD, mockgoldOfferedGoldAmount, USD, mockgoldOfferedGoldUsdPrice);
 		
 		assertEquals(Order.Status.PARTIAL, mockgoldSellOrder.getStatus());
 		assertEquals(Order.Status.FILLED, renataBuyOrder.getStatus());
