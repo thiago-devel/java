@@ -98,7 +98,7 @@ public class TestOrders {
 		BigDecimal commomGoldUsdPrice = formatNumber(40.12d);
 		BigDecimal commomAmount = formatNumber(0.243309d);
 		BigDecimal commomGOLDxUSD = formatNumber(9.76155708d);
-		Double renataOffereddUsdAmount = commomAmount.doubleValue();
+		Double renataOffereddUsdAmount = commomAmount.subtract(formatNumber(0.1d)).doubleValue();
 		Double renataOfferedGoldUsdPrice = commomGoldUsdPrice.doubleValue();
 		Double mockgoldOfferedGoldAmount = commomAmount.doubleValue();
 		Double mockgoldOfferedGoldUsdPrice = commomGoldUsdPrice.doubleValue();

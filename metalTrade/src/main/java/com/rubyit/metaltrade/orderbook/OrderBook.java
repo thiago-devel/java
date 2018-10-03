@@ -16,6 +16,7 @@ import com.rubyit.metaltrade.OrderBookWallet;
 import com.rubyit.metaltrade.TraderType;
 import com.rubyit.metaltrade.obj.AssetType;
 import com.rubyit.metaltrade.obj.Pair;
+import com.rubyit.metaltrade.orderbook.Order.Status;
 
 public class OrderBook {
 	
@@ -157,7 +158,8 @@ public class OrderBook {
 				if (moTotalAmountPrice.compareTo(oOfferedAmount) == 0) {
 				
 					performPerfectMatch(trader, pair, matchedOrder, order, otherTrader);
-				} else if (moTotalAmountPrice.compareTo(oOfferedAmount) > 0) {
+				} else if (oOfferedAmount.compareTo(moTotalAmountPrice) > 0) {
+					
 					// to change matchedOrder from Created/Filled to Partial
 					BigDecimal localOfferedAmount = formatNumber(matchedOrder.getOfferedAmount());
 					BigDecimal localExpectedUnitPrice = formatNumber(matchedOrder.getExpectedAssetUnitPrice());
@@ -174,6 +176,9 @@ public class OrderBook {
 					bookwallet.payTransactionFee(matchedOrder);
 					trader.removeCreatedOrder(order, this, pair);
 					otherTrader.removeCreatedOrder(matchedOrder, this, pair);
+					
+					Order partialFilledOrder = new Order(matchedOrder, Status.PARTIAL);
+					trader.addCreatedOrder(partialFilledOrder, this, pair);
 				}
 			}
 		}
