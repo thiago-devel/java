@@ -1,0 +1,9 @@
+*.pyc
+.DS_Store
+env
+venv
+.project
+.pydevproject
+.vscode
+.classpath
+/target/
