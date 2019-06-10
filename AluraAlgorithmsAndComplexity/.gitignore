@@ -7,3 +7,5 @@ venv
 .vscode
 .classpath
 /target/
+.settings
+/.settings/**
