@@ -1,6 +1,6 @@
 package io.rubyit;
 
-public class Car {
+public class Car implements Sortable {
 
 	private String name;
 	private Double price;
@@ -22,5 +22,10 @@ public class Car {
 	@Override
 	public String toString() {
 		return "Car [name=" + name + ", price=" + price + "]";
+	}
+
+	@Override
+	public Number getSortCompare() {
+		return getPrice();
 	}
 }
