@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class SelectionSortTesting {
+public class InsertionSortTesting {
 
 	public static void main(String[] args) {
 		List<Sortable> unsortedCars = ImmutableList.of(
@@ -16,33 +16,35 @@ public class SelectionSortTesting {
 				, new Car("Brasilia", 16000.0)
 				, new Car("Smart", 46000.0)
 				);
-		List<Sortable> sortedCars = selectionSort(unsortedCars, unsortedCars.size());
+		List<Sortable> sortedCars = insertionSort(unsortedCars, unsortedCars.size());
 
 		System.out.println("The unsorted cars are : " + unsortedCars);
 		System.out.println("The sorted cars are : " + sortedCars);
 	}
 
-	public static List<Sortable> selectionSort(List<Sortable> unsortedList, int sortableAmount) {
+	public static List<Sortable> insertionSort(List<Sortable> unsortedList, int sortableAmount) {
 		Sortable[] sortables = unsortedList.toArray(new Sortable[unsortedList.size()]);
 
-		for (int current = 0; current < sortableAmount - 1; current++) {
-//			System.out.println("Estou na casinha " + atual);
-
-			int minor = selectMinorIndex(sortables, current, sortableAmount - 1);
-			/*
-	        System.out.println("Trocando " + atual + " com o " + menor);
-			Sortable currentOrdenable = sortables[current];
-			Sortable currentMinor = sortables[minor];
-
-	        System.out.println("Trocando "+ produtoAtual.getName() + " " + produtoMenor.getName());
-
-			sortables[current] = currentMinor;
-			sortables[minor] = currentOrdenable;
-			*/
-			sortables = InsertionSortTesting.changePositions(sortables, current, minor);
+		for (int current = 1; current < sortableAmount; current++) {
+			int searching = current;
+			while (searching > 0 && ((Double)sortables[searching].getSortCompare()) < ((Double) sortables[searching - 1].getSortCompare()) ) {
+				sortables = changePositions(sortables, searching, searching - 1);
+				searching = searching - 1; //searching--
+			}
+			
 		}
 
 		return Arrays.asList(sortables);
+	}
+
+	public static Sortable[] changePositions(Sortable[] sortables, int first, int second) {
+		Sortable firstOrdenable = sortables[first];
+		Sortable secondOrdenable = sortables[second];
+		
+		sortables[first] = secondOrdenable;
+		sortables[second] = firstOrdenable;
+		
+		return sortables;
 	}
 
 	public static int selectMinorIndex(Sortable[] sortable, int offset, int limit) {
