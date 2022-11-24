@@ -35,7 +35,7 @@
         <orika-core-version>1.4.2</orika-core-version>
 		<servlet.api.version>3.0.1</servlet.api.version>
 		<spring.data.version>1.9.1.RELEASE</spring.data.version>
-        <org.hibernate-version>5.2.6.Final</org.hibernate-version>
+        <org.hibernate-version>5.3.20.Final</org.hibernate-version>
 		<hibernate.version>${org.hibernate-version}</hibernate.version>
 		<hibernate.jpa.20.version>1.0.1.Final</hibernate.jpa.20.version>
 		<hibernate.jpa.21.version>1.0.0.Final</hibernate.jpa.21.version>
